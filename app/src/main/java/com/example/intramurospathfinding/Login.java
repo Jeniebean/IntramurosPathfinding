@@ -105,7 +105,11 @@ public class Login extends Fragment {
                                         if (selectedFragment != null) {
                                             getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
                                         }
-                                        
+
+
+
+
+
 
 
                                     } else {
