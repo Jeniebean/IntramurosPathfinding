@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">IntramurosPathfinding</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title">Dummy Title</string>
+    <string name="secondary_text">Dummy Secondary Text</string>
+    <string name="supporting_text">Dummy Supporting Text</string>
+    <string name="content_description_media">Dummy Content Description</string>
+</resources>
