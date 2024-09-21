@@ -4,9 +4,19 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,6 +69,41 @@ public class History extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_history, container, false);
+        View v = inflater.inflate(R.layout.fragment_history, container, false);
+
+        ListView listView = (ListView) v.findViewById(R.id.history_list);
+
+        getHistory(listView, v);
+
+
+        return v;
     }
+
+  public void getHistory(ListView listView, View v){
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    List<Map<String, Object>> userRides = new ArrayList<>();
+    db.collection("rides")
+        .whereEqualTo("user", CurrentUser.user_id)
+        .get()
+
+        .addOnSuccessListener(queryDocumentSnapshots -> {
+            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                Map<String, Object> ride = new HashMap<>();
+                ride.put("start", documentSnapshot.get("start"));
+                ride.put("end", documentSnapshot.get("end"));
+                ride.put("status", documentSnapshot.get("status"));
+                ride.put("date_started", documentSnapshot.get("date_started"));
+                ride.put("date_ended", documentSnapshot.get("date_ended"));
+                ride.put("duration", documentSnapshot.get("duration"));
+                ride.put("distance", documentSnapshot.get("distance"));
+                ride.put("fare", documentSnapshot.get("fare"));
+                ride.put("ride_id", documentSnapshot.getId());
+
+                userRides.add(ride);
+            }
+            HistoryAdapter historyAdapter = new HistoryAdapter(v.getContext(), userRides);
+            listView.setAdapter(historyAdapter);
+            System.out.println("User Rides: " + userRides);
+        });
+}
 }
