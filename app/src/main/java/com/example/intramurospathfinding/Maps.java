@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,6 +18,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 import org.json.JSONArray;
@@ -28,15 +32,19 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Maps extends Fragment {
 
     private static final String DIRECTIONS_API_KEY = "AIzaSyDxl8KLaNgRs4kuiisFIIYSJxp1wLCeRmE";
     private LatLng pointA, pointB;
-
+    Button startRideBtn;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    Map<String, Object> ridePath = new HashMap<>();
+    GoogleMap googleMap;
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
-
 
 
         /**
@@ -55,6 +63,7 @@ public class Maps extends Fragment {
 
         @Override
         public void onMapReady(GoogleMap googleMap) {
+            Maps.this.googleMap = googleMap;
             LatLng intramuros = new LatLng(14.591473, 120.975280); // Latitude and longitude of Intramuros
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(intramuros, 16)); // 15 is the zoom level
@@ -72,6 +81,9 @@ public class Maps extends Fragment {
                         pointB = latLng;
                         googleMap.addMarker(new MarkerOptions().position(pointB).title("Point B"));
                         drawPath(googleMap, pointA, pointB);
+
+                        startRideBtn.setVisibility(View.VISIBLE);
+
                     } else {
                         // Reset the points if the user clicks on the map after the path has been drawn
                         googleMap.clear();
@@ -99,6 +111,7 @@ public class Maps extends Fragment {
             // Update the map in the main thread
             getActivity().runOnUiThread(() -> {
                 PolylineOptions polylineOptions = new PolylineOptions().addAll(path).zIndex(1000);
+                ridePath.put("path", path);
                 googleMap.addPolyline(polylineOptions);
             });
         } catch (Exception e) {
@@ -122,6 +135,11 @@ public class Maps extends Fragment {
     JSONArray paths = jsonObject.getJSONArray("paths");
     JSONObject path = paths.getJSONObject(0);
     String pointsStr = path.getString("points");
+    ridePath.put("distance", path.getDouble("distance"));
+    ridePath.put("duration", path.getDouble("time"));
+
+
+
 
     return decodePolyline(pointsStr);
 }
@@ -178,25 +196,7 @@ public class Maps extends Fragment {
 
         return poly;
     }
-    private List<LatLng> parseDirectionsResponse(String jsonResponse) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonResponse);
-        JSONArray routes = jsonObject.getJSONArray("routes");
-        JSONObject route = routes.getJSONObject(0);
-        JSONObject overviewPolyline = route.getJSONObject("overview_polyline");
-        String points = overviewPolyline.getString("points");
 
-        return decodePolyline(points);
-
-    }
-
-    private String buildDirectionsUrl(LatLng origin, LatLng destination) {
-        String strOrigin = "origin=" + origin.latitude + "," + origin.longitude;
-        String strDest = "destination=" + destination.latitude + "," + destination.longitude;
-        String key = "key=" + DIRECTIONS_API_KEY;
-        String parameters = strOrigin + "&" + strDest + "&" + key;
-
-        return "https://maps.googleapis.com/maps/api/directions/json?" + parameters;
-    }
 
 
     @Nullable
@@ -204,7 +204,37 @@ public class Maps extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_maps, container, false);
+        View v = inflater.inflate(R.layout.fragment_maps, container, false);
+        startRideBtn = (Button) v.findViewById(R.id.startRideBtn);
+        startRideBtn.setVisibility(View.INVISIBLE);
+
+
+        startRideBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+                builder.setTitle("Start Ride");
+                builder.setMessage("Are you sure you want to start the ride?");
+                builder.setPositiveButton("Yes", (dialog, which) -> {
+                    storeRide();
+                    Toast.makeText(getContext(), "Ride Started", Toast.LENGTH_SHORT).show();
+                    // Clear the map
+                    pointA = null;
+                    pointB = null;
+                    startRideBtn.setVisibility(View.INVISIBLE);
+                    googleMap.clear();
+
+                });
+                builder.setNegativeButton("No", (dialog, which) -> {
+                    dialog.dismiss();
+                });
+
+                builder.show();
+
+
+            }
+        });
+        return v;
     }
 
     @Override
@@ -215,5 +245,24 @@ public class Maps extends Fragment {
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
+    }
+
+
+    public void storeRide(){
+        Map<String, Object> rideDetails = new HashMap<>();
+        rideDetails.put("pointA", pointA.toString());
+        rideDetails.put("pointB", pointB.toString());
+        rideDetails.put("status", "ongoing");
+        rideDetails.put("user", CurrentUser.user_id);
+        rideDetails.put("date_started", System.currentTimeMillis());
+        rideDetails.put("date_ended", null);
+        rideDetails.put("distance", ridePath.get("distance"));
+        rideDetails.put("duration", ridePath.get("duration"));
+        rideDetails.put("fare", 0);
+        rideDetails.put("path", ridePath.get("path"));
+
+        db.collection("rides").add(rideDetails);
+
+
     }
 }
