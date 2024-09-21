@@ -56,7 +56,7 @@ public class Maps extends Fragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             LatLng intramuros = new LatLng(14.591473, 120.975280); // Latitude and longitude of Intramuros
-
+            googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(intramuros, 16)); // 15 is the zoom level
 
 
@@ -87,33 +87,51 @@ public class Maps extends Fragment {
     };
 
 
-    private void drawPath(GoogleMap googleMap, LatLng origin, LatLng destination) {
-        String url = buildDirectionsUrl(origin, destination);
+  private void drawPath(GoogleMap googleMap, LatLng origin, LatLng destination) {
+    String url = buildGraphHopperUrl(origin, destination);
 
-        // Make the HTTP request in a separate thread
-        new Thread(() -> {
-            try {
-                String jsonResponse = makeHttpRequest(url);
-                List<LatLng> path = parseDirectionsResponse(jsonResponse);
+    // Make the HTTP request in a separate thread
+    new Thread(() -> {
+        try {
+            String jsonResponse = makeHttpRequest(url);
+            List<LatLng> path = parseGraphHopperResponse(jsonResponse);
 
-                // Update the map in the main thread
-                getActivity().runOnUiThread(() -> {
-                    PolylineOptions polylineOptions = new PolylineOptions().addAll(path);
-                    googleMap.addPolyline(polylineOptions);
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
+            // Update the map in the main thread
+            getActivity().runOnUiThread(() -> {
+                PolylineOptions polylineOptions = new PolylineOptions().addAll(path).zIndex(1000);
+                googleMap.addPolyline(polylineOptions);
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }).start();
+}
+
+    private String buildGraphHopperUrl(LatLng origin, LatLng destination) {
+        String API_KEY = "de1f07ab-44a7-4195-80aa-ca8f105cbc91";
+        String strOrigin = "point=" + origin.latitude + "," + origin.longitude;
+        String strDest = "point=" + destination.latitude + "," + destination.longitude;
+        String key = "key=" + API_KEY;
+        String parameters = strOrigin + "&" + strDest + "&vehicle=foot&locale=en&" + key;
+
+        return "https://graphhopper.com/api/1/route?" + parameters;
     }
 
+   private List<LatLng> parseGraphHopperResponse(String jsonResponse) throws JSONException {
+    JSONObject jsonObject = new JSONObject(jsonResponse);
+    JSONArray paths = jsonObject.getJSONArray("paths");
+    JSONObject path = paths.getJSONObject(0);
+    String pointsStr = path.getString("points");
+
+    return decodePolyline(pointsStr);
+}
 
     private String makeHttpRequest(String urlString) throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.connect();
-
+        System.out.println("Successfully Connected to GraphHopper API");
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         StringBuilder stringBuilder = new StringBuilder();
 

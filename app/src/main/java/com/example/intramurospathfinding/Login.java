@@ -100,16 +100,18 @@ public class Login extends Fragment {
                                     if (!task.getResult().isEmpty()) {
                                         Toast.makeText(getContext(), "Login Success", Toast.LENGTH_SHORT).show();
                                         // Navigate to home
+                                        CurrentUser.firstname = task.getResult().getDocuments().get(0).get("firstname").toString();
+                                        CurrentUser.lastname = task.getResult().getDocuments().get(0).get("lastname").toString();
+                                        CurrentUser.email = task.getResult().getDocuments().get(0).get("email").toString();
+                                        CurrentUser.user_id = task.getResult().getDocuments().get(0).getId();
+
+
+
 
                                         Fragment selectedFragment = new Home();
                                         if (selectedFragment != null) {
                                             getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
                                         }
-
-
-
-
-
 
 
                                     } else {
