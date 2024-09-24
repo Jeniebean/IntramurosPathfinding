@@ -111,6 +111,7 @@ public class Login extends Fragment {
                                         Fragment selectedFragment = new Home();
                                         if (selectedFragment != null) {
                                             getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                                            getActivity().findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
                                         }
 
 

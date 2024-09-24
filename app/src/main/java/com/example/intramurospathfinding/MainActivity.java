@@ -39,7 +39,45 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.fragment_login);
+        setContentView(R.layout.activity_main);
+
+        fragment_container = findViewById(R.id.fragment_container);
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Login()).commit();
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setVisibility(View.INVISIBLE);
+
+
+
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                Fragment selectedFragment = null;
+                int itemId = item.getItemId();
+                if (itemId == R.id.home) {
+                    selectedFragment = new Home();
+                } else if (itemId == R.id.map) {
+                    selectedFragment = new Maps();
+                }
+                else if (itemId == R.id.history) {
+                    selectedFragment = new History();
+                }
+                else if (itemId == R.id.account) {
+                    selectedFragment = new AccountFragment();
+                }
+
+
+                if (selectedFragment != null) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                }
+
+                return true;
+            }
+        });
+
+
+
 
 
 
