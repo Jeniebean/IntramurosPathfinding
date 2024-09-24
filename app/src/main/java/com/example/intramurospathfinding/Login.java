@@ -105,9 +105,6 @@ public class Login extends Fragment {
                                         CurrentUser.email = task.getResult().getDocuments().get(0).get("email").toString();
                                         CurrentUser.user_id = task.getResult().getDocuments().get(0).getId();
 
-
-
-
                                         Fragment selectedFragment = new Home();
                                         if (selectedFragment != null) {
                                             getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
