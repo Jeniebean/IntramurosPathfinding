@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -71,7 +72,7 @@ public class Login extends Fragment {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     EditText email, password;
     Button loginBtn;
-
+    TextView linkSignin;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -81,7 +82,7 @@ public class Login extends Fragment {
         email = (EditText)  v.findViewById(R.id.loginEmailField);
         password = (EditText)  v.findViewById(R.id.loginPasswordField);
         loginBtn = (Button) v.findViewById(R.id.loginBtn);
-
+        linkSignin = (TextView) v.findViewById(R.id.linkSignin);
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,6 +121,16 @@ public class Login extends Fragment {
                                 }
                             }
                         });
+            }
+        });
+
+        linkSignin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment selectedFragment = new Registration();
+                if (selectedFragment != null) {
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                }
             }
         });
 

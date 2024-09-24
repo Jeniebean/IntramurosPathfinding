@@ -102,6 +102,8 @@ public class Registration extends Fragment {
 
                     db.collection("users").add(user);
 
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Login()).commit();
+
 
 
                 } else {
