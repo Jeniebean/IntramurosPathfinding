@@ -3,13 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".Registration">
 
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/logoo" />
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginTop="350dp"
         android:gravity="center">
         <com.google.android.material.textfield.TextInputLayout
 
@@ -93,13 +101,15 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-
         <Button
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.Material3.Button.ElevatedButton"
             android:id="@+id/submitBtn"
-            android:layout_width="wrap_content"
+            android:layout_width="330dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:textColor="@color/white"
+            android:backgroundTint="#8a817c"
+            android:layout_marginTop="20dp"
+            android:textSize="18dp"
             android:text="Register"
             />
 
