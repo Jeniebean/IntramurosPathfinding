@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="25dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Home">
 
@@ -10,7 +11,7 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="750dp"
         android:fillViewport="true"
         >
 
@@ -28,49 +29,41 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <!-- Media -->
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="194dp"
-                        android:src="@drawable/dummy"
+                        android:src="@drawable/heritage"
                         android:scaleType="centerCrop"
-                        android:contentDescription="@string/content_description_media"
+
                         />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <!-- Title, secondary and supporting text -->
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/title"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"
-                            />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="@string/secondary_text"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
-                            android:textColor="?android:attr/textColorSecondary"
-                            />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:text="@string/supporting_text"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
-                            android:textColor="?android:attr/textColorSecondary"
-                            />
-
-                    </LinearLayout>
+                        android:text="Intramuros: Heritage Walk"
+                        android:layout_marginTop="10dp"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Discover the History Behind Manila's Walled City"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?android:attr/textColorSecondary"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/heritagewalk"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?android:attr/textColorSecondary"
+                        />
 
                     <!-- Buttons -->
                     <LinearLayout
@@ -105,7 +98,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="194dp"
-                        android:src="@drawable/dummy"
+                        android:src="@drawable/nightwalk"
                         android:scaleType="centerCrop"
                         android:contentDescription="@string/content_description_media"
                         />
@@ -120,22 +113,22 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/title"
+                            android:text="Intramuros Night Tour"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="@string/secondary_text"
+                            android:text="A Historic Walk Under the Stars"
                             android:textAppearance="?attr/textAppearanceBodyMedium"
                             android:textColor="?android:attr/textColorSecondary"
                             />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:text="@string/supporting_text"
+                            android:layout_marginTop="10dp"
+                            android:text="@string/nightwalk"
                             android:textAppearance="?attr/textAppearanceBodyMedium"
                             android:textColor="?android:attr/textColorSecondary"
                             />
@@ -176,7 +169,7 @@
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="194dp"
-                        android:src="@drawable/dummy"
+                        android:src="@drawable/biketour"
                         android:scaleType="centerCrop"
                         android:contentDescription="@string/content_description_media"
                         />
@@ -191,14 +184,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/title"
+                            android:text="Intramuros Bike Tour"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             />
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="@string/secondary_text"
+                            android:text="Cycle Through History"
                             android:textAppearance="?attr/textAppearanceBodyMedium"
                             android:textColor="?android:attr/textColorSecondary"
                             />
@@ -206,7 +199,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="16dp"
-                            android:text="@string/supporting_text"
+                            android:text="Explore the historical sights of Intramuros on a bamboo bike! Join our eco-friendly tour and see the city's landmarks in a fun, active way while learning about its rich history."
                             android:textAppearance="?attr/textAppearanceBodyMedium"
                             android:textColor="?android:attr/textColorSecondary"
                             />

@@ -10,11 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center"> 
+        android:gravity="center">
+
         <ImageView
             android:layout_width="222dp"
             android:layout_height="222dp"
-            android:src="@drawable/account">
+            android:src="@drawable/avatar">
 
         </ImageView>
 
@@ -23,6 +24,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/accountName"
             android:textAlignment="center"
+            android:textColor="#8a817c"
             android:textSize="50dp"
             />
     

@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Login()).commit();
                     }
                 },
-                5000);
+                4000);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setVisibility(View.INVISIBLE);
