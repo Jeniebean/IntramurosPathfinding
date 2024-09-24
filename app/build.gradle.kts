@@ -46,7 +46,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
-
+    implementation("androidx.constraintlayout:constraintlayout:2.1.2")
     implementation("androidx.compose.material3:material3:1.3.0")
     implementation(libs.appcompat)
     implementation(libs.material)

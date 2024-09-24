@@ -36,6 +36,15 @@ public class MainActivity extends AppCompatActivity {
         //fragment_container = findViewById(R.id.fragment_container);
         //getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Login()).commit();
 
+        // Wait for 5 seconds then switch to the Login fragment
+
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Login()).commit();
+                    }
+                },
+                5000);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setVisibility(View.INVISIBLE);
