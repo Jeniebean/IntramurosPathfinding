@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -83,8 +84,9 @@ public class History extends Fragment {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     List<Map<String, Object>> userRides = new ArrayList<>();
     db.collection("rides")
-        .whereEqualTo("user", CurrentUser.user_id)
+        .whereEqualTo("user", CurrentUser.user_id).orderBy("date_started", Query.Direction.DESCENDING)
         .get()
+            // sort by date_started
 
         .addOnSuccessListener(queryDocumentSnapshots -> {
             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {

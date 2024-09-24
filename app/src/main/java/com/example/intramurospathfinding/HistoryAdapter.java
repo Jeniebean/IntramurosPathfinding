@@ -9,9 +9,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +24,9 @@ public class HistoryAdapter extends BaseAdapter {
     private Context context;
     private List<Map<String, Object>> historyList; // replace String with your actual data type
     private LayoutInflater inflater;
-    int count = 0;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+
     public HistoryAdapter(Context context, List<Map<String,Object>> historyList) {
         this.context = context;
         this.historyList = historyList;
@@ -42,7 +48,41 @@ public class HistoryAdapter extends BaseAdapter {
         return position;
     }
 
-@Override
+    public void refreshList(List<Map<String, Object>> newHistoryList) {
+        this.historyList = newHistoryList;
+        notifyDataSetChanged();
+        int count = 0;
+    }
+
+    public void getUpdatedHistory() {
+        // Fetch the updated list of rides from the database
+        // This is similar to the getHistory method in your History class
+        // Once you have the updated list, call refreshList
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        List<Map<String, Object>> updatedHistoryList = new ArrayList<>();
+        db.collection("rides")
+                .whereEqualTo("user", CurrentUser.user_id)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        Map<String, Object> ride = new HashMap<>();
+                        ride.put("start", documentSnapshot.get("start"));
+                        ride.put("end", documentSnapshot.get("end"));
+                        ride.put("status", documentSnapshot.get("status"));
+                        ride.put("date_started", documentSnapshot.get("date_started"));
+                        ride.put("date_ended", documentSnapshot.get("date_ended"));
+                        ride.put("duration", documentSnapshot.get("duration"));
+                        ride.put("distance", documentSnapshot.get("distance"));
+                        ride.put("fare", documentSnapshot.get("fare"));
+                        ride.put("ride_id", documentSnapshot.getId());
+
+                        updatedHistoryList.add(ride);
+                    }
+                    refreshList(updatedHistoryList);
+                });
+    }
+    @Override
 public View getView(int position, View convertView, ViewGroup parent) {
     convertView = inflater.inflate(R.layout.activity_history_adapter, null);
 
@@ -53,9 +93,9 @@ public View getView(int position, View convertView, ViewGroup parent) {
     Button endRideBtn = convertView.findViewById(R.id.historyEndRideBtn);
 
     Map<String, Object> history = historyList.get(position);
-    count++;
 
-    textView.setText("Ride #" + String.valueOf(count));
+
+    textView.setText("Ride #" + history.get("ride_id"));
 
     String date_started = history.get("date_started").toString();
     Date date = new Date(Long.parseLong(date_started));
@@ -74,6 +114,13 @@ public View getView(int position, View convertView, ViewGroup parent) {
         endRideBtn.setVisibility(View.INVISIBLE);
     }
 
+    viewRideBtn.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            viewRide(history);
+        }
+    });
+
     if (history.get("date_ended") != null) {
         String date_ended = history.get("date_ended").toString();
         date = new Date(Long.parseLong(date_ended));
@@ -85,11 +132,63 @@ public View getView(int position, View convertView, ViewGroup parent) {
 
     return convertView;
 }
+
     public void endRide(Map<String, Object> currentRide){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("rides").document(currentRide.get("ride_id").toString()).update("status", "completed", "date_ended", System.currentTimeMillis());
+
+        db.collection("rides").document(currentRide.get("ride_id").toString()).update("status", "completed", "date_ended", System.currentTimeMillis()).addOnCompleteListener(
+                task -> {
+                    computeFare("bike", currentRide.get("ride_id").toString());
+                }
+        );
         Toast toast = Toast.makeText(context, "Ride Ended", Toast.LENGTH_SHORT);
         toast.show();
 
+
+        // Refresh the history list
+        getUpdatedHistory();
     }
+
+    public void computeFare(String vehicleType, String ride_id){
+        Double BASE_RATE = 200.0;
+        Double PER_MINUTE_RATE = (BASE_RATE * 2)  / 60;
+
+        Map<String, Object> currentRide = new HashMap<>();
+        db.collection("rides").document(ride_id).get().addOnSuccessListener(documentSnapshot -> {
+            currentRide.put("date_started", documentSnapshot.get("date_started"));
+            currentRide.put("date_ended", documentSnapshot.get("date_ended"));
+            double startTime = Double.parseDouble(currentRide.get("date_started").toString());
+            double endTime = Double.parseDouble(currentRide.get("date_ended").toString());
+            double duration = endTime - startTime;
+            double durationInMinutes = duration / 60000;
+            double fare = (durationInMinutes * PER_MINUTE_RATE);
+            db.collection("rides").document(ride_id).update("fare", fare);
+            db.collection("rides").document(ride_id).update("duration", durationInMinutes);
+
+        });
+
+
+
+    }
+
+
+    public void viewRide(Map<String, Object> currentRide){
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
+        builder.setTitle("Ride Details");
+        // Convert duration from milliseconds to minutes
+        double duration = Double.parseDouble(currentRide.get("duration").toString()) / 60000;
+        long roundedDuration = Math.round(duration);
+        builder.setMessage("Start: " + currentRide.get("date_started") + "\n" +
+                "End: " + currentRide.get("date_ended") + "\n" +
+                "Distance: " + currentRide.get("distance") + " meters" + "\n" +
+                "Duration: " + roundedDuration + " mins" + "\n" +
+                "Fare: PHP " + currentRide.get("fare"));
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            dialog.dismiss();
+        });
+        builder.show();
+
+        }
+
+
+
 }
