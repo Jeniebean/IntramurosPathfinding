@@ -132,6 +132,7 @@ public class Maps extends Fragment {
 
    private List<LatLng> parseGraphHopperResponse(String jsonResponse) throws JSONException {
     JSONObject jsonObject = new JSONObject(jsonResponse);
+       System.out.println(jsonObject);
     JSONArray paths = jsonObject.getJSONArray("paths");
     JSONObject path = paths.getJSONObject(0);
     String pointsStr = path.getString("points");
