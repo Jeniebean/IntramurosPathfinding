@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:orientation="vertical"
+    android:layout_gravity="center|end|bottom"
+    tools:context=".MainScreen">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center|bottom"
+        android:layout_marginBottom="70dp">
+
+
+        <Button
+        android:id="@+id/loginSplashBtn"
+        style="@style/Widget.Material3.Button.ElevatedButton"
+        android:layout_width="330dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#8a817c"
+        android:text="Login"
+        android:textSize="20sp"
+        android:layout_gravity="center"
+        android:textColor="@color/white" />
+
+
+        <Button
+            style="?attr/materialButtonOutlinedStyle"
+            android:id="@+id/signupSplashBtn"
+            android:layout_width="330dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="10dp"
+            android:text="Sign up"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:textColor="#49423D"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Don't have an account?"
+            android:textSize="18sp"
+            android:textColor="#49423D"
+            android:textAlignment="center"/>
+
+
+
+    </LinearLayout>
+</FrameLayout>

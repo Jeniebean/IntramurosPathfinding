@@ -11,6 +11,8 @@
         android:id="@+id/fragment_container"
         >
 
+
+
     </androidx.fragment.app.FragmentContainerView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

@@ -13,7 +13,11 @@
         android:theme="@style/Theme.IntramurosPathfinding"
         tools:targetApi="31">
         <activity
-            android:name=".HIstoryAdapter"
+            android:name=".SplashScreen"
+            android:exported="false"
+            android:theme="@style/Theme.IntramurosPathfinding" />
+        <activity
+            android:name=".HistoryAdapter"
             android:exported="false" />
         <activity
             android:name=".Registration"

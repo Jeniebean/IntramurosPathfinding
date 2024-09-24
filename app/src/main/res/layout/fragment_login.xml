@@ -3,27 +3,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center"
+    android:orientation="vertical"
     tools:context=".Login">
+
+    <ImageView
+        android:layout_width="260dp"
+        android:layout_height="250dp"
+        android:src="@drawable/logoo"
+        android:layout_gravity="center|top"
+        android:layout_marginTop="140dp"
+        app:layout_constraintHeight_percent="0.25"
+        app:layout_constraintWidth_percent="0.25"
+        >
+
+    </ImageView>
 
     <LinearLayout
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:orientation="vertical"
-        android:gravity="center">
-
-
+        android:gravity="center"
+        app:layout_constraintHeight_percent="0.25"
+        app:layout_constraintWidth_percent="0.25">
 
         <com.google.android.material.textfield.TextInputLayout
-
-            android:layout_width="350dp"
+            android:layout_width="330dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:hint="Email">
+            android:textColor="#463f3a"
+            android:hint="Email"
+            android:layout_marginTop="220dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/loginEmailField"
-                android:layout_width="match_parent"
+                android:layout_width="330dp"
                 android:layout_height="wrap_content"
+                android:textColor="#463f3a"
                 android:inputType="textEmailAddress"
                 />
 
@@ -32,16 +49,18 @@
 
         <com.google.android.material.textfield.TextInputLayout
 
-            android:layout_width="350dp"
+            android:layout_width="330dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:textColor="#463f3a"
             android:hint="Password">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/loginPasswordField"
-                android:layout_width="match_parent"
+                android:layout_width="330dp"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
+                android:textColor="#463f3a"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -49,13 +68,16 @@
 
 
         <Button
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.Material3.Button.ElevatedButton"
             android:id="@+id/loginBtn"
-            android:layout_width="wrap_content"
+            android:layout_width="330dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:textColor="@color/white"
+            android:backgroundTint="#8a817c"
+            android:layout_marginTop="20dp"
             android:text="Login"
             />
+
     </LinearLayout>
 
 </FrameLayout>
