@@ -1,6 +1,8 @@
 package com.example.intramurospathfinding;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -127,7 +129,41 @@ public View getView(int position, View convertView, ViewGroup parent) {
         date_ended = date.toString();
         historyEndTime.setText("End Time: " + date_ended);
     } else {
-        historyEndTime.setText("End Time: Ongoing");
+        // Compute 30 minutes from the start time
+        final Handler handler = new Handler();
+        Date startTime = new Date(Long.parseLong(history.get("date_started").toString()));
+        final Runnable updateRemainingTime = new Runnable() {
+            @Override
+            public void run() {
+                // Get the current time
+                Date currentTime = new Date();
+
+                // Calculate the difference between the current time and the start time
+                long timeDifference = currentTime.getTime() - startTime.getTime();
+
+                // Convert this difference to minutes
+                long timeDifferenceInMinutes = timeDifference / 60000;
+
+                // Calculate the remaining time by subtracting the time difference from 30 minutes
+                long remainingTimeInMinutes = 30 - timeDifferenceInMinutes;
+
+                // Update the text view
+                historyEndTime.setText("End Time: " + remainingTimeInMinutes + " minutes remaining");
+
+                if (remainingTimeInMinutes <= 0) {
+                    // End the ride
+                    endRide(history);
+                }
+                // Schedule the next update in 30 seconds
+                handler.postDelayed(this, 30000);
+            }
+        };
+
+// Start the initial runnable task by posting through the handler
+handler.post(updateRemainingTime);
+
+
+
     }
 
     return convertView;
@@ -138,6 +174,7 @@ public View getView(int position, View convertView, ViewGroup parent) {
         db.collection("rides").document(currentRide.get("ride_id").toString()).update("status", "completed", "date_ended", System.currentTimeMillis()).addOnCompleteListener(
                 task -> {
                     computeFare("bike", currentRide.get("ride_id").toString());
+
                 }
         );
         Toast toast = Toast.makeText(context, "Ride Ended", Toast.LENGTH_SHORT);
@@ -177,15 +214,13 @@ public View getView(int position, View convertView, ViewGroup parent) {
         // Convert duration from milliseconds to minutes
         double duration = Double.parseDouble(currentRide.get("duration").toString()) / 60000;
         long roundedDuration = Math.round(duration);
-        builder.setMessage("Start: " + currentRide.get("date_started") + "\n" +
-                "End: " + currentRide.get("date_ended") + "\n" +
-                "Distance: " + currentRide.get("distance") + " meters" + "\n" +
-                "Duration: " + roundedDuration + " mins" + "\n" +
-                "Fare: PHP " + currentRide.get("fare"));
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            dialog.dismiss();
-        });
+        ViewRideFragment viewRideFragment = new ViewRideFragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("currentRide", (HashMap<String, Object>) currentRide);
+        viewRideFragment.setArguments(bundle);
+        builder.setView(viewRideFragment.onCreateView(inflater, null, null));
         builder.show();
+
 
         }
 

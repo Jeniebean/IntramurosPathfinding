@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <RadioGroup
+        android:id="@+id/fareTypeGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/studentRadioButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Student" />
+
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/pwdRadioButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PWD" />
+
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/seniorRadioButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Senior" />
+
+    <com.google.android.material.radiobutton.MaterialRadioButton
+        android:id="@+id/regularRadioButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Regular" />
+
+    </RadioGroup>
+
+</LinearLayout>

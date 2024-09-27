@@ -100,6 +100,8 @@ public class History extends Fragment {
                 ride.put("distance", documentSnapshot.get("distance"));
                 ride.put("fare", documentSnapshot.get("fare"));
                 ride.put("ride_id", documentSnapshot.getId());
+                ride.put("path", documentSnapshot.get("path") == null ? new ArrayList<>() : documentSnapshot.get("path") );
+
 
                 userRides.add(ride);
             }

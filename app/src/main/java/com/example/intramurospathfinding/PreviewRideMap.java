@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,7 +19,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -38,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Maps extends Fragment {
+public class PreviewRideMap extends Fragment {
 
     private static final String DIRECTIONS_API_KEY = "AIzaSyDxl8KLaNgRs4kuiisFIIYSJxp1wLCeRmE";
     private LatLng pointA, pointB;
@@ -65,7 +63,7 @@ public class Maps extends Fragment {
 
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            Maps.this.googleMap = googleMap;
+            PreviewRideMap.this.googleMap = googleMap;
             LatLng intramuros = new LatLng(14.591473, 120.975280); // Latitude and longitude of Intramuros
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(intramuros, 16)); // 15 is the zoom level
@@ -76,23 +74,7 @@ public class Maps extends Fragment {
             googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
-                    if (pointA == null) {
-                        pointA = latLng;
-                        googleMap.addMarker(new MarkerOptions().position(pointA).title("Point A"));
-                    } else if (pointB == null) {
-                        pointB = latLng;
-                        googleMap.addMarker(new MarkerOptions().position(pointB).title("Point B"));
-                        drawPath(googleMap, pointA, pointB);
 
-                        startRideBtn.setVisibility(View.VISIBLE);
-
-                    } else {
-                        // Reset the points if the user clicks on the map after the path has been drawn
-                        googleMap.clear();
-                        pointA = latLng;
-                        pointB = null;
-                        googleMap.addMarker(new MarkerOptions().position(pointA).title("Point A"));
-                    }
                 }
             });
         }
@@ -101,26 +83,26 @@ public class Maps extends Fragment {
     };
 
 
-  private void drawPath(GoogleMap googleMap, LatLng origin, LatLng destination) {
-    String url = buildGraphHopperUrl(origin, destination);
+    private void drawPath(GoogleMap googleMap, LatLng origin, LatLng destination) {
+        String url = buildGraphHopperUrl(origin, destination);
 
-    // Make the HTTP request in a separate thread
-    new Thread(() -> {
-        try {
-            String jsonResponse = makeHttpRequest(url);
-            List<LatLng> path = parseGraphHopperResponse(jsonResponse);
+        // Make the HTTP request in a separate thread
+        new Thread(() -> {
+            try {
+                String jsonResponse = makeHttpRequest(url);
+                List<LatLng> path = parseGraphHopperResponse(jsonResponse);
 
-            // Update the map in the main thread
-            getActivity().runOnUiThread(() -> {
-                PolylineOptions polylineOptions = new PolylineOptions().addAll(path).zIndex(1000);
-                ridePath.put("path", path);
-                googleMap.addPolyline(polylineOptions);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }).start();
-}
+                // Update the map in the main thread
+                getActivity().runOnUiThread(() -> {
+                    PolylineOptions polylineOptions = new PolylineOptions().addAll(path).zIndex(1000);
+                    ridePath.put("path", path);
+                    googleMap.addPolyline(polylineOptions);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
     private String buildGraphHopperUrl(LatLng origin, LatLng destination) {
         String API_KEY = "de1f07ab-44a7-4195-80aa-ca8f105cbc91";
@@ -132,20 +114,20 @@ public class Maps extends Fragment {
         return "https://graphhopper.com/api/1/route?" + parameters;
     }
 
-   private List<LatLng> parseGraphHopperResponse(String jsonResponse) throws JSONException {
-    JSONObject jsonObject = new JSONObject(jsonResponse);
-       System.out.println(jsonObject);
-    JSONArray paths = jsonObject.getJSONArray("paths");
-    JSONObject path = paths.getJSONObject(0);
-    String pointsStr = path.getString("points");
-    ridePath.put("distance", path.getDouble("distance"));
-    ridePath.put("duration", path.getDouble("time"));
+    private List<LatLng> parseGraphHopperResponse(String jsonResponse) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonResponse);
+        System.out.println(jsonObject);
+        JSONArray paths = jsonObject.getJSONArray("paths");
+        JSONObject path = paths.getJSONObject(0);
+        String pointsStr = path.getString("points");
+        ridePath.put("distance", path.getDouble("distance"));
+        ridePath.put("duration", path.getDouble("time"));
 
 
 
 
-    return decodePolyline(pointsStr);
-}
+        return decodePolyline(pointsStr);
+    }
 
     private String makeHttpRequest(String urlString) throws IOException {
         URL url = new URL(urlString);
@@ -201,49 +183,14 @@ public class Maps extends Fragment {
     }
 
 
-    View fragment_modal;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_maps, container, false);
-        startRideBtn = (Button) v.findViewById(R.id.startRideBtn);
-        startRideBtn.setVisibility(View.INVISIBLE);
+        View v = inflater.inflate(R.layout.fragment_preview_ride_map, container, false);
 
-
-        startRideBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-                builder.setTitle("Start Ride");
-                builder.setMessage("Are you sure you want to start the ride?");
-                fragment_modal  = inflater.inflate(R.layout.fragment_map_modal, null);
-                MaterialRadioButton regularRadioButton = fragment_modal.findViewById(R.id.regularRadioButton);
-                regularRadioButton.setChecked(true);
-
-                builder.setView(fragment_modal);
-                builder.setPositiveButton("Yes", (dialog, which) -> {
-                    storeRide();
-                    Toast.makeText(getContext(), "Ride Started", Toast.LENGTH_SHORT).show();
-                    // Clear the map
-                    pointA = null;
-                    pointB = null;
-                    startRideBtn.setVisibility(View.INVISIBLE);
-                    googleMap.clear();
-
-                });
-
-
-                builder.setNegativeButton("No", (dialog, which) -> {
-                    dialog.dismiss();
-                });
-
-                builder.show();
-
-
-            }
-        });
         return v;
     }
 
@@ -258,36 +205,5 @@ public class Maps extends Fragment {
     }
 
 
-    public void storeRide(){
-        Map<String, Object> rideDetails = new HashMap<>();
-        rideDetails.put("pointA", pointA.toString());
-        rideDetails.put("pointB", pointB.toString());
-        rideDetails.put("status", "ongoing");
-        rideDetails.put("user", CurrentUser.user_id);
-        rideDetails.put("date_started", System.currentTimeMillis());
-        rideDetails.put("date_ended", null);
-        rideDetails.put("distance", ridePath.get("distance"));
-        rideDetails.put("duration", ridePath.get("duration"));
-        rideDetails.put("fare", 0);
-        rideDetails.put("path", ridePath.get("path"));
 
-        RadioGroup radioGroup = fragment_modal.findViewById(R.id.fareTypeGroup);
-        int selectedId = radioGroup.getCheckedRadioButtonId();
-        if (selectedId == R.id.regularRadioButton) {
-            rideDetails.put("fare_type", "regular");
-        }
-        else if (selectedId == R.id.studentRadioButton) {
-            rideDetails.put("fare_type", "student");
-        }
-        else if (selectedId == R.id.pwdRadioButton) {
-            rideDetails.put("fare_type", "pwd");
-
-        }
-        else {
-            rideDetails.put("fare_type", "senior");
-        }
-        db.collection("rides").add(rideDetails);
-
-
-    }
 }
