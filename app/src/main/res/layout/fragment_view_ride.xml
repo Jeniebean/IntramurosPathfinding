@@ -42,11 +42,6 @@
             android:layout_height="wrap_content"
             android:text="Distance: "/>
 
-        <TextView
-            android:id="@+id/duration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Duration: "/>
 
         <TextView
             android:id="@+id/fare"

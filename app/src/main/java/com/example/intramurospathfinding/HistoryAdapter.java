@@ -151,12 +151,12 @@ public View getView(int position, View convertView, ViewGroup parent) {
                 long remainingTimeInMinutes = 1 - timeDifferenceInMinutes;
 
                 // Update the text view
-                historyEndTime.setText("End Time: " + remainingTimeInMinutes + " minutes remaining");
 
                 if (remainingTimeInMinutes <= 0) {
-
                     extendRideBtn.setVisibility(View.VISIBLE);
-
+                }
+                else{
+                    historyEndTime.setText("End Time: " + remainingTimeInMinutes + " minutes remaining");
 
                 }
                 // Schedule the next update in 30 seconds
@@ -194,20 +194,29 @@ handler.post(updateRemainingTime);
         Double BASE_RATE;
 
 
-        if (vehicleType.equals("kalesa")) {
+        if (vehicleType.equalsIgnoreCase("kalesa")) {
+            System.out.println("Kalesa");
             BASE_RATE = 200.0;
 
-        } else if (vehicleType.equals("pedicab")) {
+        } else if (vehicleType.equalsIgnoreCase("pedicab")) {
+            System.out.println("Pedicab");
             BASE_RATE = 150.0;
 
-        } else if (vehicleType.equals("tricycle")) {
+        } else if (vehicleType.equalsIgnoreCase("tricycle")) {
+            System.out.println("Tricycle");
             BASE_RATE = 100.0;
 
         }
         else{
+            System.out.println("No vehicle type");
             BASE_RATE = 0.0;
 
         }
+
+        System.out.println("Base Rate: " + BASE_RATE);
+        System.out.println("Extension: " + extension);
+        System.out.println("Passenger Quantity: " + passenger_quantity);
+        System.out.println("Ride ID: " + ride_id);
 
         Map<String, Object> currentRide = new HashMap<>();
         db.collection("rides").document(ride_id).get().addOnSuccessListener(documentSnapshot -> {
@@ -218,6 +227,7 @@ handler.post(updateRemainingTime);
             double duration = endTime - startTime;
             double durationInMinutes = duration / 60000;
             double fare =  (Double.parseDouble(passenger_quantity) * BASE_RATE) * Double.parseDouble(extension);
+            System.out.println("Fare: " + fare);
             db.collection("rides").document(ride_id).update("fare", fare);
             db.collection("rides").document(ride_id).update("duration", durationInMinutes);
 

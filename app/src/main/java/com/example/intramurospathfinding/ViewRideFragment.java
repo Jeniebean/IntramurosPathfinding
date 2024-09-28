@@ -78,8 +78,6 @@ public class ViewRideFragment extends Fragment {
         if (bundle != null) {
            currentRide = (Map<String, Object>) bundle.getSerializable("currentRide");
             System.out.println(currentRide);
-
-            TextView duration = v.findViewById(R.id.duration);
             TextView distance = v.findViewById(R.id.distance);
             TextView dateStarted  = v.findViewById(R.id.dateStarted);
             TextView dateEnded = v.findViewById(R.id.dateEnded);
@@ -92,10 +90,9 @@ public class ViewRideFragment extends Fragment {
             String dateString = formatter.format(date);
 
 
-            duration.setText("Duration: " + currentRide.get("duration").toString());
 
             if (currentRide.get("distance") != null){
-                distance.setText("Distance: " + currentRide.get("distance").toString());
+                distance.setText("Distance: " + currentRide.get("distance").toString() + " meters");
             } else {
                 distance.setText("Distance:");
             }
@@ -112,9 +109,9 @@ public class ViewRideFragment extends Fragment {
             }
 
             status.setText("Status: " + currentRide.get("status").toString());
-           // round fare to 2 decimal places
+
             double fareValue = Double.parseDouble(currentRide.get("fare").toString());
-            fare.setText("Fare: " + String.format("%.2f", fareValue));
+            fare.setText("Fare: " + fareValue);
 
 
         }

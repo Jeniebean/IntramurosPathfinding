@@ -271,6 +271,7 @@ public class Maps extends Fragment {
         rideDetails.put("duration", ridePath.get("duration"));
         rideDetails.put("fare", 0);
         rideDetails.put("path", ridePath.get("path"));
+        rideDetails.put("vehicle_type", CurrentUser.vehicle_type);
 
         RadioGroup radioGroup = fragment_modal.findViewById(R.id.fareTypeGroup);
         int selectedId = radioGroup.getCheckedRadioButtonId();
@@ -288,10 +289,10 @@ public class Maps extends Fragment {
             rideDetails.put("fare_type", "senior");
         }
 
-        TextInputEditText passengerQuantityInputLayout = fragment_modal.findViewById(R.id.passengerQuantityInputLayout);
+        TextInputEditText passengerQuantityEditText = fragment_modal.findViewById(R.id.passengerQuantityEditText);
 
 
-        rideDetails.put("passenger_quantity", Integer.parseInt(passengerQuantityInputLayout.getText().toString()));
+        rideDetails.put("passenger_quantity", Integer.parseInt(passengerQuantityEditText.getText().toString()));
         rideDetails.put("extension", 1);
         db.collection("rides").add(rideDetails);
 
