@@ -33,26 +33,14 @@
 
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textField"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/label">
+            android:hint="First Name">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/label">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
+                android:id="@+id/accountFirstName"
                 android:layout_height="wrap_content"
                 />
 
@@ -60,85 +48,46 @@
 
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textField"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/label">
+            android:hint="Last Name">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
+                android:id="@+id/accountLastName"
                 android:layout_height="wrap_content"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
 
+
+
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textField"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/label">
+            android:hint="Email">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
+                android:id="@+id/accountEmail"
                 android:layout_height="wrap_content"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>
 
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/label">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/label">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
 
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/label">
+      <Button
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+            android:id="@+id/updateAccountButton"
+            android:text="Update Account"
+            android:layout_marginTop="20dp" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
 
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/label">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_p
-                arent"
-                android:layout_height="wrap_content"
-                />
-
-        </com.google.android.material.textfield.TextInputLayout>
 
 
     </LinearLayout>
