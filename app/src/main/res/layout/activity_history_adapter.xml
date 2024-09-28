@@ -67,6 +67,15 @@
                         android:text="End Ride"
                         />
 
+                    <Button
+                        style="@style/Widget.Material3.Button.ElevatedButton"
+                        android:id="@+id/historyExtendRideBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:text="Extend Ride"
+                        />
+
 
                     <Button
                         style="@style/Widget.Material3.Button.ElevatedButton"

@@ -4,6 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
+    <com.google.android.material.textfield.TextInputLayout
+    android:id="@+id/passengerQuantityInputLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="Enter quantity of passengers">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/passengerQuantityEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number" />
+
+</com.google.android.material.textfield.TextInputLayout>
 
     <RadioGroup
         android:id="@+id/fareTypeGroup"

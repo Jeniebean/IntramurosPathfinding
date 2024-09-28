@@ -93,7 +93,9 @@ public View getView(int position, View convertView, ViewGroup parent) {
     TextView historyEndTime = convertView.findViewById(R.id.historyEndTime);
     Button viewRideBtn = convertView.findViewById(R.id.historyViewRideBtn);
     Button endRideBtn = convertView.findViewById(R.id.historyEndRideBtn);
+    Button extendRideBtn = convertView.findViewById(R.id.historyExtendRideBtn);
 
+    extendRideBtn.setVisibility(View.GONE);
     Map<String, Object> history = historyList.get(position);
 
 
@@ -131,6 +133,7 @@ public View getView(int position, View convertView, ViewGroup parent) {
     } else {
         // Compute 30 minutes from the start time
         final Handler handler = new Handler();
+
         Date startTime = new Date(Long.parseLong(history.get("date_started").toString()));
         final Runnable updateRemainingTime = new Runnable() {
             @Override
@@ -145,14 +148,16 @@ public View getView(int position, View convertView, ViewGroup parent) {
                 long timeDifferenceInMinutes = timeDifference / 60000;
 
                 // Calculate the remaining time by subtracting the time difference from 30 minutes
-                long remainingTimeInMinutes = 30 - timeDifferenceInMinutes;
+                long remainingTimeInMinutes = 1 - timeDifferenceInMinutes;
 
                 // Update the text view
                 historyEndTime.setText("End Time: " + remainingTimeInMinutes + " minutes remaining");
 
                 if (remainingTimeInMinutes <= 0) {
-                    // End the ride
-                    endRide(history);
+
+                    extendRideBtn.setVisibility(View.VISIBLE);
+
+
                 }
                 // Schedule the next update in 30 seconds
                 handler.postDelayed(this, 30000);
@@ -173,7 +178,7 @@ handler.post(updateRemainingTime);
 
         db.collection("rides").document(currentRide.get("ride_id").toString()).update("status", "completed", "date_ended", System.currentTimeMillis()).addOnCompleteListener(
                 task -> {
-                    computeFare("bike", currentRide.get("ride_id").toString());
+                    computeFare(currentRide.get("vehicle_type").toString(), currentRide.get("ride_id").toString(), currentRide.get("extension").toString(), currentRide.get("passenger_quantity").toString());
 
                 }
         );
@@ -185,9 +190,24 @@ handler.post(updateRemainingTime);
         getUpdatedHistory();
     }
 
-    public void computeFare(String vehicleType, String ride_id){
-        Double BASE_RATE = 200.0;
-        Double PER_MINUTE_RATE = (BASE_RATE * 2)  / 60;
+    public void computeFare(String vehicleType, String ride_id, String extension, String passenger_quantity) {
+        Double BASE_RATE;
+
+
+        if (vehicleType.equals("kalesa")) {
+            BASE_RATE = 200.0;
+
+        } else if (vehicleType.equals("pedicab")) {
+            BASE_RATE = 150.0;
+
+        } else if (vehicleType.equals("tricycle")) {
+            BASE_RATE = 100.0;
+
+        }
+        else{
+            BASE_RATE = 0.0;
+
+        }
 
         Map<String, Object> currentRide = new HashMap<>();
         db.collection("rides").document(ride_id).get().addOnSuccessListener(documentSnapshot -> {
@@ -197,7 +217,7 @@ handler.post(updateRemainingTime);
             double endTime = Double.parseDouble(currentRide.get("date_ended").toString());
             double duration = endTime - startTime;
             double durationInMinutes = duration / 60000;
-            double fare = (durationInMinutes * PER_MINUTE_RATE);
+            double fare =  (Double.parseDouble(passenger_quantity) * BASE_RATE) * Double.parseDouble(extension);
             db.collection("rides").document(ride_id).update("fare", fare);
             db.collection("rides").document(ride_id).update("duration", durationInMinutes);
 

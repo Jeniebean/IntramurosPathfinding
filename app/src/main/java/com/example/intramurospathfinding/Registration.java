@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -66,6 +68,8 @@ public class Registration extends Fragment {
 
 
     Button submitBtn;
+    RadioGroup vehicle_type;
+    RadioButton kalesaRadioButton, pedicabRadioButton, tricycleRadioButton;
     EditText firstname,lastname, email, password, confirmPassword;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     @Override
@@ -80,6 +84,14 @@ public class Registration extends Fragment {
         email = (EditText) v.findViewById(R.id.email);
         password = (EditText) v.findViewById(R.id.password);
         confirmPassword = (EditText) v.findViewById(R.id.confirmPassword);
+        vehicle_type = (RadioGroup) v.findViewById(R.id.vehicle_type);
+        kalesaRadioButton = (RadioButton) v.findViewById(R.id.kalesaRadioButton);
+        pedicabRadioButton = (RadioButton) v.findViewById(R.id.pedicabRadioButton);
+        tricycleRadioButton = (RadioButton) v.findViewById(R.id.tricycleRadioButton);
+
+        kalesaRadioButton.setSelected(true);
+
+
 
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
@@ -98,6 +110,15 @@ public class Registration extends Fragment {
                     user.put("lastname", lastname.getText().toString());
                     user.put("email", email.getText().toString());
                     user.put("password", password.getText().toString());
+
+                    int selectedId = vehicle_type.getCheckedRadioButtonId();
+                    if (selectedId == kalesaRadioButton.getId()) {
+                        user.put("vehicle_type", "kalesa");
+                    } else if (selectedId == pedicabRadioButton.getId()) {
+                        user.put("vehicle_type", "pedicab");
+                    } else if (selectedId == tricycleRadioButton.getId()) {
+                        user.put("vehicle_type", "tricycle");
+                    }
 
 
                     db.collection("users").add(user);

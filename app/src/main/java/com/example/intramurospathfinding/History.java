@@ -100,6 +100,9 @@ public class History extends Fragment {
                 ride.put("distance", documentSnapshot.get("distance"));
                 ride.put("fare", documentSnapshot.get("fare"));
                 ride.put("ride_id", documentSnapshot.getId());
+                ride.put("passenger_quantity", documentSnapshot.get("passenger_quantity") == null ? 0 : documentSnapshot.get("passenger_quantity") );
+                ride.put("extension", documentSnapshot.get("extension") == null ? "" : documentSnapshot.get("extension") );
+                ride.put("vehicle_type", documentSnapshot.get("vehicle_type") == null ? "" : documentSnapshot.get("vehicle_type") );
                 ride.put("path", documentSnapshot.get("path") == null ? new ArrayList<>() : documentSnapshot.get("path") );
 
 

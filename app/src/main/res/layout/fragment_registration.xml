@@ -19,6 +19,36 @@
         android:orientation="vertical"
         android:layout_marginTop="350dp"
         android:gravity="center">
+
+        <RadioGroup
+            android:id="@+id/vehicle_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/kalesaRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kalesa" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/pedicabRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pedicab" />
+
+            <com.google.android.material.radiobutton.MaterialRadioButton
+                android:id="@+id/tricycleRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tricycle" />
+
+        </RadioGroup>
+
+
         <com.google.android.material.textfield.TextInputLayout
 
             android:layout_width="350dp"

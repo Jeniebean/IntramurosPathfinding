@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.radiobutton.MaterialRadioButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -286,6 +287,12 @@ public class Maps extends Fragment {
         else {
             rideDetails.put("fare_type", "senior");
         }
+
+        TextInputEditText passengerQuantityInputLayout = fragment_modal.findViewById(R.id.passengerQuantityInputLayout);
+
+
+        rideDetails.put("passenger_quantity", Integer.parseInt(passengerQuantityInputLayout.getText().toString()));
+        rideDetails.put("extension", 1);
         db.collection("rides").add(rideDetails);
 
 
