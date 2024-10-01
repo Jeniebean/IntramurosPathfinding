@@ -1,7 +1,7 @@
 package com.example.intramurospathfinding;
 
 import android.os.Bundle;
-
+import java.util.concurrent.CompletableFuture;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -89,38 +89,8 @@ public class Login extends Fragment {
             public void onClick(View v) {
                 String emailStr = email.getText().toString();
                 String passwordStr = password.getText().toString();
+                verifyLogin(emailStr, passwordStr);
 
-                db.collection("users")
-                        .whereEqualTo("email", emailStr)
-                        .whereEqualTo("password", passwordStr)
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    if (!task.getResult().isEmpty()) {
-                                        Toast.makeText(getContext(), "Login Success", Toast.LENGTH_SHORT).show();
-                                        // Navigate to home
-                                        CurrentUser.firstname = task.getResult().getDocuments().get(0).get("firstname").toString();
-                                        CurrentUser.lastname = task.getResult().getDocuments().get(0).get("lastname").toString();
-                                        CurrentUser.email = task.getResult().getDocuments().get(0).get("email").toString();
-                                        CurrentUser.user_id = task.getResult().getDocuments().get(0).getId();
-                                        CurrentUser.vehicle_type = task.getResult().getDocuments().get(0).get("vehicle_type").toString();
-                                        Fragment selectedFragment = new Home();
-                                        if (selectedFragment != null) {
-                                            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
-                                            getActivity().findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
-                                        }
-
-
-                                    } else {
-                                        Toast.makeText(getContext(), "User not found", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    // Query failed
-                                }
-                            }
-                        });
             }
         });
 
@@ -138,4 +108,46 @@ public class Login extends Fragment {
 
         return v;
     }
+
+
+
+
+public CompletableFuture<Boolean> verifyLogin(String emailStr, String passwordStr){
+    CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+    db.collection("users")
+            .whereEqualTo("email", emailStr)
+            .whereEqualTo("password", passwordStr)
+            .get()
+            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        if (!task.getResult().isEmpty()) {
+                            Toast.makeText(getContext(), "Login Success", Toast.LENGTH_SHORT).show();
+                            // Navigate to home
+                            CurrentUser.firstname = task.getResult().getDocuments().get(0).get("firstname").toString();
+                            CurrentUser.lastname = task.getResult().getDocuments().get(0).get("lastname").toString();
+                            CurrentUser.email = task.getResult().getDocuments().get(0).get("email").toString();
+                            CurrentUser.user_id = task.getResult().getDocuments().get(0).getId();
+                            CurrentUser.vehicle_type = task.getResult().getDocuments().get(0).get("vehicle_type").toString();
+                            Fragment selectedFragment = new Home();
+                            if (selectedFragment != null) {
+                                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                                getActivity().findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
+                            }
+                            future.complete(true);
+                        } else {
+                            Toast.makeText(getContext(), "User not found", Toast.LENGTH_SHORT).show();
+                            future.complete(false);
+                        }
+                    } else {
+                        // Query failed
+                        future.complete(false);
+                    }
+                }
+            });
+
+    return future;
+}
 }

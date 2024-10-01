@@ -203,25 +203,33 @@ handler.post(updateRemainingTime);
 
         if (vehicleType.equalsIgnoreCase("kalesa")) {
             System.out.println("Kalesa");
-            BASE_RATE = 200.0;
+            if (fare_type.equalsIgnoreCase("regular")) {
+                BASE_RATE = 1000.0;
+            } else if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior") || fare_type.equalsIgnoreCase("pwd")) {
+                BASE_RATE = 800.0;
+            }
 
         } else if (vehicleType.equalsIgnoreCase("pedicab")) {
             System.out.println("Pedicab");
-            BASE_RATE = 150.0;
+
+            if (fare_type.equalsIgnoreCase("regular")) {
+                BASE_RATE = 400.0;
+            } else if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior") || fare_type.equalsIgnoreCase("pwd")) {
+                BASE_RATE = 320.0;
+            }
 
         } else if (vehicleType.equalsIgnoreCase("tricycle")) {
             System.out.println("Tricycle");
-            BASE_RATE = 100.0;
+        }
+        if (fare_type.equalsIgnoreCase("regular")) {
+            BASE_RATE = 200.0;
+        } else if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior") || fare_type.equalsIgnoreCase("pwd")) {
+            BASE_RATE = 120.0;
 
         }
   
         
-        if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior")){
-            BASE_RATE = BASE_RATE * 0.8;
-        }
-        else if (fare_type.equalsIgnoreCase("pwd")){
-            BASE_RATE = BASE_RATE * 0.5;
-        }
+
 
 
         System.out.println("Base Rate: " + BASE_RATE);

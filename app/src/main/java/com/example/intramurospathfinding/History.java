@@ -91,8 +91,6 @@ public class History extends Fragment {
         .addOnSuccessListener(queryDocumentSnapshots -> {
             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                 Map<String, Object> ride = new HashMap<>();
-                ride.put("start", documentSnapshot.get("start"));
-                ride.put("end", documentSnapshot.get("end"));
                 ride.put("status", documentSnapshot.get("status"));
                 ride.put("date_started", documentSnapshot.get("date_started"));
                 ride.put("date_ended", documentSnapshot.get("date_ended"));
@@ -104,7 +102,7 @@ public class History extends Fragment {
                 ride.put("extension", documentSnapshot.get("extension") == null ? "" : documentSnapshot.get("extension") );
                 ride.put("vehicle_type", documentSnapshot.get("vehicle_type") == null ? "" : documentSnapshot.get("vehicle_type") );
                 ride.put("path", documentSnapshot.get("path") == null ? new ArrayList<>() : documentSnapshot.get("path") );
-
+                ride.put("fare_type", documentSnapshot.get("fare_type") == null ? "" : documentSnapshot.get("fare_type") );
 
                 userRides.add(ride);
             }
