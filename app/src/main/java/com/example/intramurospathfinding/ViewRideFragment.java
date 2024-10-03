@@ -111,6 +111,8 @@ public class ViewRideFragment extends Fragment {
             status.setText("Status: " + currentRide.get("status").toString());
 
             double fareValue = Double.parseDouble(currentRide.get("fare").toString());
+            // Convert to two decimal places
+            fareValue = Math.round(fareValue * 100.0) / 100.0;
             fare.setText("Fare: " + fareValue);
 
 

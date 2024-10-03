@@ -28,7 +28,7 @@ public class HistoryAdapter extends BaseAdapter {
     private List<Map<String, Object>> historyList; // replace String with your actual data type
     private LayoutInflater inflater;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+    Button extendRideBtn, endRideBtn, viewRideBtn;
 
     public HistoryAdapter(Context context, List<Map<String,Object>> historyList) {
         this.context = context;
@@ -88,113 +88,167 @@ public class HistoryAdapter extends BaseAdapter {
                 });
     }
     @Override
-public View getView(int position, View convertView, ViewGroup parent) {
-    convertView = inflater.inflate(R.layout.activity_history_adapter, null);
+  public View getView(int position, View convertView, ViewGroup parent) {
+    convertView = inflateView();
 
-    TextView textView = convertView.findViewById(R.id.cardTitle);
-    TextView historyStartTime = convertView.findViewById(R.id.historyStartTime);
-    TextView historyEndTime = convertView.findViewById(R.id.historyEndTime);
-    Button viewRideBtn = convertView.findViewById(R.id.historyViewRideBtn);
-    Button endRideBtn = convertView.findViewById(R.id.historyEndRideBtn);
-    Button extendRideBtn = convertView.findViewById(R.id.historyExtendRideBtn);
-
-    extendRideBtn.setVisibility(View.GONE);
     Map<String, Object> history = historyList.get(position);
 
+    setupTextViews(convertView, history);
+    setupButtons(convertView, history);
 
-    textView.setText("Ride #" + history.get("ride_id"));
-
-    String date_started = history.get("date_started").toString();
-    Date date = new Date(Long.parseLong(date_started));
-    date_started = date.toString();
-    historyStartTime.setText("Start Time: " + date_started);
-
-    if (history.get("status").toString().equals("ongoing")) {
-        endRideBtn.setVisibility(View.VISIBLE);
-        endRideBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                endRide(history);
-            }
-        });
-    } else {
-        endRideBtn.setVisibility(View.INVISIBLE);
+    return convertView;
+}
+    /**
+     * Inflate the view for the history adapter.
+     *
+     * @return the inflated view
+     */
+    private View inflateView() {
+        return inflater.inflate(R.layout.activity_history_adapter, null);
     }
 
-    viewRideBtn.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            viewRide(history);
+
+    /**
+     * Setup the text views for the history item.
+     *
+     * @param convertView the view to setup
+     * @param history the history item data
+     */
+
+    private void setupTextViews(View convertView, Map<String, Object> history) {
+        TextView textView = convertView.findViewById(R.id.cardTitle);
+        TextView historyStartTime = convertView.findViewById(R.id.historyStartTime);
+        TextView historyEndTime = convertView.findViewById(R.id.historyEndTime);
+
+        textView.setText("Ride #" + history.get("ride_id"));
+
+        String date_started = formatDate(history.get("date_started").toString());
+        historyStartTime.setText("Start Time: " + date_started);
+
+        if (history.get("date_ended") != null) {
+            String date_ended = formatDate(history.get("date_ended").toString());
+            historyEndTime.setText("End Time: " + date_ended);
+        } else {
+            updateRemainingTime(history, historyEndTime);
         }
-    });
+    }
 
-    if (history.get("date_ended") != null) {
-        String date_ended = history.get("date_ended").toString();
-        date = new Date(Long.parseLong(date_ended));
-        date_ended = date.toString();
-        historyEndTime.setText("End Time: " + date_ended);
-    } else {
-        // Compute 30 minutes from the start time
+
+    /**
+     * Format the date from milliseconds to a readable string.
+     *
+     * @param dateInMilliseconds the date in milliseconds
+     * @return the formatted date string
+     */
+    private String formatDate(String dateInMilliseconds) {
+        Date date = new Date(Long.parseLong(dateInMilliseconds));
+        return date.toString();
+    }
+
+    /**
+     * Setup the buttons for the history item.
+     *
+     * @param convertView the view to setup
+     * @param history the history item data
+     */
+    private void setupButtons(View convertView, Map<String, Object> history) {
+         viewRideBtn = convertView.findViewById(R.id.historyViewRideBtn);
+         endRideBtn = convertView.findViewById(R.id.historyEndRideBtn);
+         extendRideBtn = convertView.findViewById(R.id.historyExtendRideBtn);
+
+        extendRideBtn.setVisibility(View.GONE);
+
+        if (isRideOngoing(history)) {
+            endRideBtn.setVisibility(View.VISIBLE);
+            endRideBtn.setOnClickListener(v -> endRide(history));
+        } else {
+            endRideBtn.setVisibility(View.INVISIBLE);
+        }
+
+        viewRideBtn.setOnClickListener(v -> viewRide(history));
+    }
+
+
+    /**
+     * Check if the ride is ongoing.
+     *
+     * @param history the history item data
+     * @return true if the ride is ongoing, false otherwise
+     */
+    private boolean isRideOngoing(Map<String, Object> history) {
+        return history.get("status").toString().equals("ongoing");
+    }
+
+
+    /**
+     * Update the remaining time for the ride.
+     *
+     * @param history the history item data
+     * @param historyEndTime the text view to update
+     */
+    private void updateRemainingTime(Map<String, Object> history, TextView historyEndTime) {
         final Handler handler = new Handler();
-
         Date startTime = new Date(Long.parseLong(history.get("date_started").toString()));
+
         final Runnable updateRemainingTime = new Runnable() {
             @Override
             public void run() {
-
-                // Get the current time
-                Date currentTime = new Date();
-                double remainingTimeInMinutes = 0;
-
-                // Calculate the difference between the current time and the start time
-                long timeDifference = currentTime.getTime() - startTime.getTime();
-
-                // Convert this difference to minutes
-                long timeDifferenceInMinutes = timeDifference / 60000;
-
-
-
-                double extension = history.get("extension") == null ? 1 : Double.parseDouble(history.get("extension").toString());
-                // Calculate the remaining time by subtracting the time difference from 30 minutes
-                if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")) {
-
-                    remainingTimeInMinutes = 60 * extension - timeDifferenceInMinutes;
-
-                }
-                else{
-                    remainingTimeInMinutes = 30 * extension - timeDifferenceInMinutes;
-                }
-
-
+                double remainingTimeInMinutes = calculateRemainingTimeInMinutes(history, startTime);
                 if (remainingTimeInMinutes <= 0) {
-                    extendRideBtn.setVisibility(View.VISIBLE);
-                    extendRideBtn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            extendRide(history);
-                        }
-                    });
-                    historyEndTime.setText("End Time: 0 minutes remaining");
-                }
-                else{
+                    showExtendRideButton(history, historyEndTime, extendRideBtn);
+                } else {
                     historyEndTime.setText("End Time: " + remainingTimeInMinutes + " minutes remaining");
-
                 }
-                // Schedule the next update in 30 seconds
                 handler.postDelayed(this, 30000);
             }
         };
 
-// Start the initial runnable task by posting through the handler
-handler.post(updateRemainingTime);
-
-
-
+        handler.post(updateRemainingTime);
     }
 
-    return convertView;
-}
 
+
+    /**
+     * Calculate the remaining time in minutes for the ride.
+     *
+     * @param history the history item data
+     * @param startTime the start time of the ride
+     * @return the remaining time in minutes
+     */
+    private double calculateRemainingTimeInMinutes(Map<String, Object> history, Date startTime) {
+        Date currentTime = new Date();
+        long timeDifference = currentTime.getTime() - startTime.getTime();
+        long timeDifferenceInMinutes = timeDifference / 60000;
+
+        double extension = history.get("extension") == null ? 1 : Double.parseDouble(history.get("extension").toString());
+        if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")) {
+            return 60 * extension - timeDifferenceInMinutes;
+        } else {
+            return 30 * extension - timeDifferenceInMinutes;
+        }
+    }
+
+    /**
+     * Show the extend ride button.
+     *
+     * @param history the history item data
+     * @param historyEndTime the text view to update
+     * @param extendRideBtn the button to show
+     */
+
+    private void showExtendRideButton(Map<String, Object> history, TextView historyEndTime, Button extendRideBtn){
+
+        extendRideBtn.setVisibility(View.VISIBLE);
+        extendRideBtn.setOnClickListener(v -> extendRide(history));
+        historyEndTime.setText("End Time: 0 minutes remaining");
+    }
+
+
+    /**
+     * End the ride and update the status in the database.
+     *
+     * @param currentRide the ride to end
+     */
     public void endRide(Map<String, Object> currentRide){
 
         db.collection("rides").document(currentRide.get("ride_id").toString()).update("status", "completed", "date_ended", System.currentTimeMillis()).addOnCompleteListener(
@@ -214,7 +268,15 @@ handler.post(updateRemainingTime);
 
 
 
-
+    /**
+     * Compute the fare for a ride.
+     *
+     * @param vehicleType the type of vehicle used for the ride
+     * @param ride_id the id of the ride
+     * @param extension the extension time for the ride
+     * @param passenger_quantity the number of passengers for the ride
+     * @param fare_type the type of fare for the ride
+     */
     public void computeFare(String vehicleType, String ride_id, String extension, String passenger_quantity, String fare_type) {
         Double BASE_RATE = 0.0;
         Double PER_MINUTE_RATE = 0.0;
@@ -285,6 +347,17 @@ handler.post(updateRemainingTime);
 
     }
 
+
+    /**
+     * Calculate the fare based on various parameters.
+     *
+     * @param BASE_RATE the base rate for the ride
+     * @param PER_MINUTE_RATE the per minute rate for the ride
+     * @param extension the extension time for the ride
+     * @param passenger_quantity the number of passengers for the ride
+     * @param durationInMinutes the duration of the ride in minutes
+     * @return the calculated fare
+     */
     public double calculateFare(Double BASE_RATE, Double PER_MINUTE_RATE, String extension, String passenger_quantity, double durationInMinutes) {
 
         double timeElapsed = 0;
@@ -339,7 +412,11 @@ handler.post(updateRemainingTime);
         return fare;
     }
 
-
+    /**
+     * View the details of a ride.
+     *
+     * @param currentRide the ride to view
+     */
     public void viewRide(Map<String, Object> currentRide){
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
         builder.setTitle("Ride Details");
@@ -355,13 +432,17 @@ handler.post(updateRemainingTime);
 
 
         }
-
-        public void extendRide(Map<String, Object> currentRide){
-            Double currentExtension = Double.parseDouble(currentRide.get("extension").toString());
-            Double newExtension = currentExtension + 1;
-            db.collection("rides").document(currentRide.get("ride_id").toString()).update("extension", newExtension);
-               Toast toast = Toast.makeText(context, "Ride Extended", Toast.LENGTH_SHORT);
-        }
+    /**
+     * Extend the duration of a ride.
+     *
+     * @param currentRide the ride to extend
+     */
+    public void extendRide(Map<String, Object> currentRide){
+        Double currentExtension = Double.parseDouble(currentRide.get("extension").toString());
+        Double newExtension = currentExtension + 1;
+        db.collection("rides").document(currentRide.get("ride_id").toString()).update("extension", newExtension);
+           Toast toast = Toast.makeText(context, "Ride Extended", Toast.LENGTH_SHORT);
+    }
 
 
 

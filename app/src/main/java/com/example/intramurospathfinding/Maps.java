@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.graphics.Color;
+import android.graphics.drawable.AdaptiveIconDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.radiobutton.MaterialRadioButton;
@@ -45,7 +48,8 @@ public class Maps extends Fragment {
     private LatLng pointA, pointB;
     Button startRideBtn;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    Map<String, Object> ridePath = new HashMap<>();
+    ArrayList<Map<String, Object>> ridePath = new ArrayList<>();
+    Map<String, Object> selectedPath = new HashMap<>();
     GoogleMap googleMap;
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -85,14 +89,10 @@ public class Maps extends Fragment {
                         googleMap.addMarker(new MarkerOptions().position(pointB).title("Point B"));
                         drawPath(googleMap, pointA, pointB);
 
-                        startRideBtn.setVisibility(View.VISIBLE);
-
+                        resetMapPath.setVisibility(View.VISIBLE);
                     } else {
-                        // Reset the points if the user clicks on the map after the path has been drawn
-                        googleMap.clear();
-                        pointA = latLng;
-                        pointB = null;
-                        googleMap.addMarker(new MarkerOptions().position(pointA).title("Point A"));
+
+
                     }
                 }
             });
@@ -102,56 +102,162 @@ public class Maps extends Fragment {
     };
 
 
-  private void drawPath(GoogleMap googleMap, LatLng origin, LatLng destination) {
-    String url = buildGraphHopperUrl(origin, destination);
+    private HashMap<Polyline, List<LatLng>> polylineData = new HashMap<>();
 
-    // Make the HTTP request in a separate thread
-    new Thread(() -> {
-        try {
-            String jsonResponse = makeHttpRequest(url);
-            List<LatLng> path = parseGraphHopperResponse(jsonResponse);
+        /**
+     * Draws a path on the map between the origin and destination.
+     * @param googleMap the GoogleMap object
+     * @param origin the starting point of the path
+     * @param destination the ending point of the path
+     */
+    private void drawPath(GoogleMap googleMap, LatLng origin, LatLng destination) {
+        String url = buildGraphHopperUrl(origin, destination);
+        int[] colors = {Color.RED, Color.BLUE, Color.GREEN};
 
-            // Update the map in the main thread
-            getActivity().runOnUiThread(() -> {
-                PolylineOptions polylineOptions = new PolylineOptions().addAll(path).zIndex(1000);
-                ridePath.put("path", path);
-                googleMap.addPolyline(polylineOptions);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }).start();
-}
+        new Thread(() -> {
+            try {
+                String jsonResponse = makeHttpRequest(url);
+                List<List<LatLng>> allPaths = parseGraphHopperResponse(jsonResponse);
+                updateMapWithPaths(googleMap, allPaths, colors);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
+    /**
+     * Updates the map with the given paths.
+     * @param googleMap the GoogleMap object
+     * @param allPaths the paths to be drawn on the map
+     * @param colors the colors to be used for the paths
+     */
+    private void updateMapWithPaths(GoogleMap googleMap, List<List<LatLng>> allPaths, int[] colors) {
+        getActivity().runOnUiThread(() -> {
+            for (int i = 0; i < allPaths.size(); i++) {
+                List<LatLng> path = allPaths.get(i);
+                PolylineOptions polylineOptions = new PolylineOptions().addAll(path).color(colors[i % colors.length]).zIndex(1000).clickable(true);
+                Polyline polyline = googleMap.addPolyline(polylineOptions);
+                polylineData.put(polyline, path);
+            }
+            setPolylineClickListener(googleMap);
+        });
+    }
+
+    /**
+     * Sets a click listener for the polylines on the map.
+     * @param googleMap the GoogleMap object
+     */
+    private void setPolylineClickListener(GoogleMap googleMap) {
+        googleMap.setOnPolylineClickListener(polyline -> {
+            List<LatLng> path = polylineData.get(polyline);
+            List<List<LatLng>> pathsList = new ArrayList<>(polylineData.values());
+            int selectedIndex = pathsList.indexOf(path);
+            selectedPath = ridePath.get(selectedIndex);
+
+
+            showStartRideDialog(path);
+        });
+    }
+
+    /**
+     * Shows a dialog to confirm the start of the ride.
+     * @param path the path of the ride
+     */
+    /**
+     * Shows a dialog to confirm the start of the ride.
+     * @param path the path of the ride
+     */
+    private void showStartRideDialog(List<LatLng> path) {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        builder.setTitle("Start Ride");
+
+        // Calculate the distance and duration of the ride
+        double distance = Double.parseDouble(selectedPath.get("distance").toString());
+        double duration = Double.parseDouble(selectedPath.get("duration").toString());
+
+        // Format the distance and duration for display
+        String distanceStr = String.format("%.2f km", distance / 1000);
+        String durationStr = String.format("%.2f min", duration / 60000);
+
+        // Include the distance and duration in the dialog message
+        String message = String.format("Are you sure you want to start the ride?\n\nDistance: %s\nEstimated Duration: %s", distanceStr, durationStr);
+        builder.setMessage(message);
+
+        LayoutInflater inflater = getLayoutInflater();
+        fragment_modal  = inflater.inflate(R.layout.fragment_map_modal, null);
+        setupDialogView();
+        builder.setView(fragment_modal);
+        setDialogButtons(builder, path);
+        builder.show();
+    }
+
+    /**
+     * Sets up the view for the dialog.
+     */
+    private void setupDialogView() {
+        MaterialRadioButton regularRadioButton = fragment_modal.findViewById(R.id.regularRadioButton);
+        regularRadioButton.setChecked(true);
+        TextInputEditText passengerQuantityEditText = fragment_modal.findViewById(R.id.passengerQuantityEditText);
+        passengerQuantityEditText.setText("1");
+    }
+
+    /**
+     * Sets the positive and negative buttons for the dialog.
+     * @param builder the MaterialAlertDialogBuilder object
+     * @param path the path of the ride
+     */
+    private void setDialogButtons(MaterialAlertDialogBuilder builder, List<LatLng> path) {
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            storeRide(path);
+            Toast.makeText(getContext(), "Ride Started", Toast.LENGTH_SHORT).show();
+            clearMap();
+        });
+        builder.setNegativeButton("No", (dialog, which) -> {
+            dialog.dismiss();
+        });
+    }
+
+    /**
+     * Clears the map.
+     */
+    private void clearMap() {
+        pointA = null;
+        pointB = null;
+        resetMapPath.setVisibility(View.INVISIBLE);
+        googleMap.clear();
+    }
     private String buildGraphHopperUrl(LatLng origin, LatLng destination) {
         String API_KEY = "de1f07ab-44a7-4195-80aa-ca8f105cbc91";
         String strOrigin = "point=" + origin.latitude + "," + origin.longitude;
         String strDest = "point=" + destination.latitude + "," + destination.longitude;
         String key = "&key=" + API_KEY;
-        String multiplePaths = "algorithm=alternative_route&alternative_route.max_paths=3&alternative_route.max_weight_factor=1.2&alternative_route.max_share_factor=0.8&alternative_route.min_plateau_factor=0.3&alternative_route.min_factor=0.3&alternative_route.max_factor=0.7&alternative_route.min_paths=2&alternative_route.min_weight_factor=0.7&alternative_route.min_share_factor=0.3&alternative_route.max_plateau_factor=0.7";
+        String multiplePaths = "algorithm=alternative_route&alternative_route.max_paths=3&alternative_route.max_weight_factor=20&alternative_route.max_share_factor=20&alternative_route.min_plateau_factor=0.3&alternative_route.min_factor=0.3&alternative_route.max_factor=50&alternative_route.min_paths=2&alternative_route.min_weight_factor=0.7&alternative_route.min_share_factor=0.3&alternative_route.max_plateau_factor=0.7";
         String parameters = strOrigin + "&" + strDest + "&vehicle=car&locale=en&" + multiplePaths + key;
 
         System.out.println("https://graphhopper.com/api/1/route?" + parameters);
         return "https://graphhopper.com/api/1/route?" + parameters;
     }
 
-    // Maps.java 137:149
-
-   private List<LatLng> parseGraphHopperResponse(String jsonResponse) throws JSONException {
-    JSONObject jsonObject = new JSONObject(jsonResponse);
-    System.out.println(jsonObject);
-    JSONArray paths = jsonObject.getJSONArray("paths");
-       System.out.println(paths);
-    JSONObject path = paths.getJSONObject(0);
-    String pointsStr = path.getString("points");
-    ridePath.put("distance", path.getDouble("distance"));
-    ridePath.put("duration", path.getDouble("time"));
 
 
+    private List<List<LatLng>> parseGraphHopperResponse(String jsonResponse) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonResponse);
+        JSONArray paths = jsonObject.getJSONArray("paths");
+        List<List<LatLng>> allPaths = new ArrayList<>();
 
+        for (int i = 0; i < paths.length(); i++) {
+            JSONObject path = paths.getJSONObject(i);
+            String pointsStr = path.getString("points");
 
-    return decodePolyline(pointsStr);
-}
+            ridePath.add(new HashMap<String, Object>(){{
+                put("distance", path.get("distance"));
+                put("duration", path.get("time"));
+            }});
+            allPaths.add(decodePolyline(pointsStr));
+        }
+
+        return allPaths;
+    }
 
     private String makeHttpRequest(String urlString) throws IOException {
         URL url = new URL(urlString);
@@ -206,7 +312,7 @@ public class Maps extends Fragment {
         return poly;
     }
 
-
+    Button resetMapPath;
     View fragment_modal;
     @Nullable
     @Override
@@ -214,44 +320,22 @@ public class Maps extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_maps, container, false);
-        startRideBtn = (Button) v.findViewById(R.id.startRideBtn);
-        startRideBtn.setVisibility(View.INVISIBLE);
+        resetMapPath = (Button) v.findViewById(R.id.resetMapPath);
+        resetMapPath.setVisibility(View.INVISIBLE);
+
+        resetMapPath.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        googleMap.clear();
+                        pointA = null;
+                        pointB = null;
+                        resetMapPath.setVisibility(View.INVISIBLE);
+                    }
+                }
+        );
 
 
-        startRideBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-                builder.setTitle("Start Ride");
-                builder.setMessage("Are you sure you want to start the ride?");
-                fragment_modal  = inflater.inflate(R.layout.fragment_map_modal, null);
-                MaterialRadioButton regularRadioButton = fragment_modal.findViewById(R.id.regularRadioButton);
-                regularRadioButton.setChecked(true);
-                TextInputEditText passengerQuantityEditText = fragment_modal.findViewById(R.id.passengerQuantityEditText);
-                passengerQuantityEditText.setText("1");
-
-                builder.setView(fragment_modal);
-                builder.setPositiveButton("Yes", (dialog, which) -> {
-                    storeRide();
-                    Toast.makeText(getContext(), "Ride Started", Toast.LENGTH_SHORT).show();
-                    // Clear the map
-                    pointA = null;
-                    pointB = null;
-                    startRideBtn.setVisibility(View.INVISIBLE);
-                    googleMap.clear();
-
-                });
-
-
-                builder.setNegativeButton("No", (dialog, which) -> {
-                    dialog.dismiss();
-                });
-
-                builder.show();
-
-
-            }
-        });
         return v;
     }
 
@@ -266,7 +350,7 @@ public class Maps extends Fragment {
     }
 
 
-    public void storeRide(){
+    public void storeRide(List<LatLng> path){
         Map<String, Object> rideDetails = new HashMap<>();
         rideDetails.put("pointA", pointA.toString());
         rideDetails.put("pointB", pointB.toString());
@@ -274,10 +358,10 @@ public class Maps extends Fragment {
         rideDetails.put("user", CurrentUser.user_id);
         rideDetails.put("date_started", System.currentTimeMillis());
         rideDetails.put("date_ended", null);
-        rideDetails.put("distance", ridePath.get("distance"));
-        rideDetails.put("duration", ridePath.get("duration"));
+        rideDetails.put("distance", selectedPath.get("distance"));
+        rideDetails.put("duration", selectedPath.get("duration"));
         rideDetails.put("fare", 0);
-        rideDetails.put("path", ridePath.get("path"));
+        rideDetails.put("path", path);
         rideDetails.put("vehicle_type", CurrentUser.vehicle_type);
 
         RadioGroup radioGroup = fragment_modal.findViewById(R.id.fareTypeGroup);
