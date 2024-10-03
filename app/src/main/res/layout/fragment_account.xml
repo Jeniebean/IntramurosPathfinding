@@ -83,9 +83,11 @@
       <Button
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
-            android:id="@+id/updateAccountButton"
-            android:text="Update Account"
-            android:layout_marginTop="20dp" />
+          android:layout_marginHorizontal="25dp"
+        android:id="@+id/updateAccountButton"
+        android:text="Update Account"
+        android:backgroundTint="#8a817c"
+        android:layout_marginTop="20dp" />
 
 
 

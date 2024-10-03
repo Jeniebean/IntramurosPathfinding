@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -65,6 +66,8 @@ public class HistoryAdapter extends BaseAdapter {
         List<Map<String, Object>> updatedHistoryList = new ArrayList<>();
         db.collection("rides")
                 .whereEqualTo("user", CurrentUser.user_id)
+                .orderBy("date_started", Query.Direction.DESCENDING)
+
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
@@ -138,8 +141,10 @@ public View getView(int position, View convertView, ViewGroup parent) {
         final Runnable updateRemainingTime = new Runnable() {
             @Override
             public void run() {
+
                 // Get the current time
                 Date currentTime = new Date();
+                double remainingTimeInMinutes = 0;
 
                 // Calculate the difference between the current time and the start time
                 long timeDifference = currentTime.getTime() - startTime.getTime();
@@ -147,9 +152,18 @@ public View getView(int position, View convertView, ViewGroup parent) {
                 // Convert this difference to minutes
                 long timeDifferenceInMinutes = timeDifference / 60000;
 
-                double extension = Double.parseDouble(history.get("extension").toString());
+
+
+                double extension = history.get("extension") == null ? 1 : Double.parseDouble(history.get("extension").toString());
                 // Calculate the remaining time by subtracting the time difference from 30 minutes
-                    double remainingTimeInMinutes = 30 * extension - timeDifferenceInMinutes;
+                if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")) {
+
+                    remainingTimeInMinutes = 60 * extension - timeDifferenceInMinutes;
+
+                }
+                else{
+                    remainingTimeInMinutes = 30 * extension - timeDifferenceInMinutes;
+                }
 
 
                 if (remainingTimeInMinutes <= 0) {
@@ -188,25 +202,32 @@ handler.post(updateRemainingTime);
                     computeFare(currentRide.get("vehicle_type").toString(), currentRide.get("ride_id").toString(), currentRide.get("extension").toString(), currentRide.get("passenger_quantity").toString(), currentRide.get("fare_type").toString());
 
                 }
+
         );
         Toast toast = Toast.makeText(context, "Ride Ended", Toast.LENGTH_SHORT);
         toast.show();
 
 
         // Refresh the history list
-        getUpdatedHistory();
+
     }
+
+
+
 
     public void computeFare(String vehicleType, String ride_id, String extension, String passenger_quantity, String fare_type) {
         Double BASE_RATE = 0.0;
+        Double PER_MINUTE_RATE = 0.0;
 
 
         if (vehicleType.equalsIgnoreCase("kalesa")) {
             System.out.println("Kalesa");
             if (fare_type.equalsIgnoreCase("regular")) {
                 BASE_RATE = 1000.0;
+                PER_MINUTE_RATE = BASE_RATE / 60;
             } else if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior") || fare_type.equalsIgnoreCase("pwd")) {
                 BASE_RATE = 800.0;
+                PER_MINUTE_RATE = BASE_RATE / 60;
             }
 
         } else if (vehicleType.equalsIgnoreCase("pedicab")) {
@@ -214,20 +235,24 @@ handler.post(updateRemainingTime);
 
             if (fare_type.equalsIgnoreCase("regular")) {
                 BASE_RATE = 400.0;
+                PER_MINUTE_RATE = BASE_RATE / 60;
             } else if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior") || fare_type.equalsIgnoreCase("pwd")) {
                 BASE_RATE = 320.0;
+                PER_MINUTE_RATE = BASE_RATE / 60;
             }
 
         } else if (vehicleType.equalsIgnoreCase("tricycle")) {
             System.out.println("Tricycle");
-        }
-        if (fare_type.equalsIgnoreCase("regular")) {
-            BASE_RATE = 200.0;
-        } else if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior") || fare_type.equalsIgnoreCase("pwd")) {
-            BASE_RATE = 120.0;
+            if (fare_type.equalsIgnoreCase("regular")) {
+                BASE_RATE = 200.0;
+                PER_MINUTE_RATE = BASE_RATE / 30;
+            } else if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior") || fare_type.equalsIgnoreCase("pwd")) {
+                BASE_RATE = 120.0;
+                PER_MINUTE_RATE = BASE_RATE / 30;
+            }
 
         }
-  
+
         
 
 
@@ -240,6 +265,7 @@ handler.post(updateRemainingTime);
         Map<String, Object> currentRide = new HashMap<>();
         Double finalBASE_RATE = BASE_RATE;
 
+        Double finalPER_MINUTE_RATE = PER_MINUTE_RATE;
         db.collection("rides").document(ride_id).get().addOnSuccessListener(documentSnapshot -> {
             currentRide.put("date_started", documentSnapshot.get("date_started"));
             currentRide.put("date_ended", documentSnapshot.get("date_ended"));
@@ -247,15 +273,70 @@ handler.post(updateRemainingTime);
             double endTime = Double.parseDouble(currentRide.get("date_ended").toString());
             double duration = endTime - startTime;
             double durationInMinutes = duration / 60000;
-            double fare =  (Double.parseDouble(passenger_quantity) * finalBASE_RATE) * Double.parseDouble(extension);
+            double fare = calculateFare(finalBASE_RATE, finalPER_MINUTE_RATE, extension, passenger_quantity, durationInMinutes);
             System.out.println("Fare: " + fare);
             db.collection("rides").document(ride_id).update("fare", fare);
             db.collection("rides").document(ride_id).update("duration", durationInMinutes);
-
+            // refresh the history list
+            getUpdatedHistory();
         });
 
 
 
+    }
+
+    public double calculateFare(Double BASE_RATE, Double PER_MINUTE_RATE, String extension, String passenger_quantity, double durationInMinutes) {
+
+        double timeElapsed = 0;
+
+
+        // 60 minutes for kalesa
+
+        // 65 minutes
+
+        // 1 extensions
+
+        // 5 minutes
+
+        // * PER_MINUTE_RATE
+
+
+        // 60
+
+        // 60
+
+        // 30
+
+
+
+        double fare = 0;
+
+
+        System.out.println("Duration in minutes: " + durationInMinutes);
+        System.out.println("Extension: " + extension);
+        System.out.println("Passenger Quantity: " + passenger_quantity);
+        System.out.println("Base Rate: " + BASE_RATE);
+        System.out.println("Per Minute Rate: " + PER_MINUTE_RATE);
+        System.out.println("Vehicle Type: " + CurrentUser.vehicle_type);
+        if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")){
+             timeElapsed = durationInMinutes - (60 * Double.parseDouble(extension));
+
+        }
+        else{
+            timeElapsed = durationInMinutes - (30 * Double.parseDouble(extension));
+
+        }
+
+        if (timeElapsed > 0){
+            fare = ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(passenger_quantity);
+        }
+        else{
+            fare = BASE_RATE * Double.parseDouble(passenger_quantity);
+        }
+
+
+
+        return fare;
     }
 
 
@@ -276,10 +357,10 @@ handler.post(updateRemainingTime);
         }
 
         public void extendRide(Map<String, Object> currentRide){
-    Double currentExtension = Double.parseDouble(currentRide.get("extension").toString());
-    Double newExtension = currentExtension + 1;
-    db.collection("rides").document(currentRide.get("ride_id").toString()).update("extension", newExtension);
-    Toast toast = Toast.makeText(context, "Ride Extended", Toast.LENGTH_SHORT);
+            Double currentExtension = Double.parseDouble(currentRide.get("extension").toString());
+            Double newExtension = currentExtension + 1;
+            db.collection("rides").document(currentRide.get("ride_id").toString()).update("extension", newExtension);
+               Toast toast = Toast.makeText(context, "Ride Extended", Toast.LENGTH_SHORT);
         }
 
 

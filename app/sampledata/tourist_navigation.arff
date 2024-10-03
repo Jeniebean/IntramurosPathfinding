@@ -1,0 +1,25 @@
+@relation tourist_navigation
+
+@attribute start_point_lat numeric
+@attribute start_point_lon numeric
+@attribute end_point_lat numeric
+@attribute end_point_lon numeric
+@attribute path_type {shortest, scenic, direct}
+@attribute distance numeric
+@attribute eucledian_distance numeric
+@attribute traffic_density {low, medium, high}
+@attribute tourist_traffic {low, medium, high}
+@attribute travel_time numeric
+@attribute day {Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday}
+@attribute time string
+@attribute landmarks string
+
+@data
+14.589559, 120.978836, 14.589577, 120.974998, shortest, 587, 402.34, high, high, 240000, Wednesday, '10:58 AM', 'Manila High School, San Agustin Church'
+14.592829, 120.972023, 14.590472, 120.974257, shortest, 499, 359.3, high, high, 240000, Wednesday, '11:19 AM', 'Beanleaf, Plaza de Roma, Pope Francis Hall, La Cathedral Cafe'
+14.590426, 120.974225, 14.587085, 120.978624, scenic, 687, 589.16, medium, medium, 493000, Wednesday, '11:29 AM', 'Baluarte Plano Luneta De Santa Isabel, Puerta De Santa Lucia, Gallena De Los, Cuartel De Santa Lucia, Bagumbayan Light & Sound Museum, Baluarte De San Diego, Puerta Real'
+14.587005, 120.978490, 14.587005, 120.978490, direct, 608, 577.39, medium, medium, 322000, Wednesday, '11:34 AM', 'Manila Bulletin, Church of San Nicholas, Manila Highschool, Baluarte De Dilao, Mapua, Site of San Francisco Church, LPU, Puerta Del Parian and Revillin Del Parian'
+14.592165, 120.978122, 14.593686, 120.974418, scenic, 534, 414.36, medium, medium, 360000, Wednesday, '11:35 AM', 'Bestileria Limtuaco and Co., Letran College, Baluarte De San Gabriel, A Cruceiro, Bureau of Immigration, Plaza Mexico, Jolibee, The Principal and Royal University of Sto Tomas, Aduana Building'
+14.593515, 120.974643, 14.591687, 120.974043, direct, 326, 214.32, medium, medium, 180000, Wednesday, '11:43 AM', 'BPI, Collegio De Santa Rosa, Sto Thomas Plaza, Dorm ni Rizal'
+14.591848, 120.973890, 14.588998, 120.975512, scenic, 351, 272.5, low, low, 180000, Wednesday, '11:47 AM', 'Escuela Nautica De Manila, Bahay Tsinoy Museum, Sto Thomas Plaza, Plancia De Santa Isabel, CBCP, Casa Manila Museum'
+14.589600, 120.974917, 14.587404, 120.976912, scenic, 328, 306.22, low, low, 360000, Wednesday, '11:58 AM', 'San Agustinian Provincial House, Puerta De Santa Lucia, Lights of Columbus Fraternal, NCCA, Collegio Santa Polenciana, The First Jesuit Compound, El Almaneer'

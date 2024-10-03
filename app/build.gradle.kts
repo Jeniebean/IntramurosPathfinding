@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
@@ -35,6 +37,11 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    packaging {
+        resources.excludes.add("META-INF/*")
+    }
+
 }
 
 
@@ -42,6 +49,7 @@ android {
 
 
 dependencies {
+// https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable
 
     implementation(platform("com.google.firebase:firebase-bom:33.3.0"))
     implementation("com.google.firebase:firebase-analytics")

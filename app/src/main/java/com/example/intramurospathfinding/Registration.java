@@ -70,7 +70,7 @@ public class Registration extends Fragment {
     Button submitBtn;
     RadioGroup vehicle_type;
     RadioButton kalesaRadioButton, pedicabRadioButton, tricycleRadioButton;
-    EditText firstname,lastname, email, password, confirmPassword;
+    EditText firstname,lastname, username, password, confirmPassword;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -81,7 +81,7 @@ public class Registration extends Fragment {
         submitBtn = (Button) v.findViewById(R.id.submitBtn);
         firstname = (EditText) v.findViewById(R.id.firstname);
         lastname = (EditText) v.findViewById(R.id.lastname);
-        email = (EditText) v.findViewById(R.id.email);
+        username = (EditText) v.findViewById(R.id.username);
         password = (EditText) v.findViewById(R.id.password);
         confirmPassword = (EditText) v.findViewById(R.id.confirmPassword);
         vehicle_type = (RadioGroup) v.findViewById(R.id.vehicle_type);
@@ -108,7 +108,7 @@ public class Registration extends Fragment {
 
                     user.put("firstname", firstname.getText().toString());
                     user.put("lastname", lastname.getText().toString());
-                    user.put("email", email.getText().toString());
+                    user.put("username", username.getText().toString());
                     user.put("password", password.getText().toString());
 
                     int selectedId = vehicle_type.getCheckedRadioButtonId();

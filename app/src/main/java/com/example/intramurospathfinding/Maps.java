@@ -127,16 +127,21 @@ public class Maps extends Fragment {
         String API_KEY = "de1f07ab-44a7-4195-80aa-ca8f105cbc91";
         String strOrigin = "point=" + origin.latitude + "," + origin.longitude;
         String strDest = "point=" + destination.latitude + "," + destination.longitude;
-        String key = "key=" + API_KEY;
-        String parameters = strOrigin + "&" + strDest + "&vehicle=car&locale=en&" + key;
+        String key = "&key=" + API_KEY;
+        String multiplePaths = "algorithm=alternative_route&alternative_route.max_paths=3&alternative_route.max_weight_factor=1.2&alternative_route.max_share_factor=0.8&alternative_route.min_plateau_factor=0.3&alternative_route.min_factor=0.3&alternative_route.max_factor=0.7&alternative_route.min_paths=2&alternative_route.min_weight_factor=0.7&alternative_route.min_share_factor=0.3&alternative_route.max_plateau_factor=0.7";
+        String parameters = strOrigin + "&" + strDest + "&vehicle=car&locale=en&" + multiplePaths + key;
 
+        System.out.println("https://graphhopper.com/api/1/route?" + parameters);
         return "https://graphhopper.com/api/1/route?" + parameters;
     }
 
+    // Maps.java 137:149
+
    private List<LatLng> parseGraphHopperResponse(String jsonResponse) throws JSONException {
     JSONObject jsonObject = new JSONObject(jsonResponse);
-       System.out.println(jsonObject);
+    System.out.println(jsonObject);
     JSONArray paths = jsonObject.getJSONArray("paths");
+       System.out.println(paths);
     JSONObject path = paths.getJSONObject(0);
     String pointsStr = path.getString("points");
     ridePath.put("distance", path.getDouble("distance"));
@@ -222,6 +227,8 @@ public class Maps extends Fragment {
                 fragment_modal  = inflater.inflate(R.layout.fragment_map_modal, null);
                 MaterialRadioButton regularRadioButton = fragment_modal.findViewById(R.id.regularRadioButton);
                 regularRadioButton.setChecked(true);
+                TextInputEditText passengerQuantityEditText = fragment_modal.findViewById(R.id.passengerQuantityEditText);
+                passengerQuantityEditText.setText("1");
 
                 builder.setView(fragment_modal);
                 builder.setPositiveButton("Yes", (dialog, which) -> {
