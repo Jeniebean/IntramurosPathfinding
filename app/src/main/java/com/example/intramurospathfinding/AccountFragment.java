@@ -61,7 +61,7 @@ public class AccountFragment extends Fragment {
         }
     }
 
-    Button updateAccountButton;
+    Button updateAccountButton, logoutButton;
 
 
     @Override
@@ -74,6 +74,7 @@ public class AccountFragment extends Fragment {
         EditText lastname = v.findViewById(R.id.accountLastName);
         EditText username = v.findViewById(R.id.accountEmail);
         updateAccountButton = v.findViewById(R.id.updateAccountButton);
+        logoutButton = v.findViewById(R.id.logoutButton);
 
         firstname.setText(CurrentUser.firstname);
         lastname.setText(CurrentUser.lastname);
@@ -88,12 +89,25 @@ public class AccountFragment extends Fragment {
 
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                db.collection("users").document(CurrentUser.user_id).update("firstname", CurrentUser.firstname, "lastname", CurrentUser.lastname, "email", CurrentUser.email).addOnCompleteListener(
+                db.collection("users").document(CurrentUser.user_id).update("firstname", CurrentUser.firstname, "lastname", CurrentUser.lastname, "username", CurrentUser.email).addOnCompleteListener(
                         task -> {
                             Toast.makeText(getContext(), "Account updated", Toast.LENGTH_SHORT).show();
                         }
                 );
 
+            }
+        });
+
+
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CurrentUser.firstname = "";
+                CurrentUser.lastname = "";
+                CurrentUser.email = "";
+                CurrentUser.user_id = "";
+                CurrentUser.vehicle_type = "";
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Login()).commit();
             }
         });
 

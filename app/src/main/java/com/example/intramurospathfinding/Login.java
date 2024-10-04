@@ -91,7 +91,7 @@ public class Login extends Fragment {
                 String passwordStr = password.getText().toString();
 
                 db.collection("users")
-                        .whereEqualTo("email", emailStr)
+                        .whereEqualTo("username", emailStr)
                         .whereEqualTo("password", passwordStr)
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -103,7 +103,7 @@ public class Login extends Fragment {
                                         // Navigate to home
                                         CurrentUser.firstname = task.getResult().getDocuments().get(0).get("firstname").toString();
                                         CurrentUser.lastname = task.getResult().getDocuments().get(0).get("lastname").toString();
-                                        CurrentUser.email = task.getResult().getDocuments().get(0).get("email").toString();
+                                        CurrentUser.email = task.getResult().getDocuments().get(0).get("username").toString();
                                         CurrentUser.user_id = task.getResult().getDocuments().get(0).getId();
                                         CurrentUser.vehicle_type = task.getResult().getDocuments().get(0).get("vehicle_type").toString();
                                         Fragment selectedFragment = new Home();
@@ -130,6 +130,8 @@ public class Login extends Fragment {
                 Fragment selectedFragment = new Registration();
                 if (selectedFragment != null) {
                     getActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, selectedFragment).commit();
+                    getActivity().findViewById(R.id.bottom_navigation).setVisibility(View.GONE);
+
                 }
             }
         });
