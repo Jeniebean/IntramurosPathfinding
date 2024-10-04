@@ -7,7 +7,12 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,14 +61,42 @@ public class AccountFragment extends Fragment {
         }
     }
 
+    Button updateAccountButton;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_account, container, false);
 
-        TextView accountName = v.findViewById(R.id.accountName);
-        accountName.setText(CurrentUser.firstname + " " + CurrentUser.lastname);
+        EditText firstname = v.findViewById(R.id.accountFirstName);
+        EditText lastname = v.findViewById(R.id.accountLastName);
+        EditText username = v.findViewById(R.id.accountEmail);
+        updateAccountButton = v.findViewById(R.id.updateAccountButton);
+
+        firstname.setText(CurrentUser.firstname);
+        lastname.setText(CurrentUser.lastname);
+        username.setText(CurrentUser.email);
+
+        updateAccountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CurrentUser.firstname = firstname.getText().toString();
+                CurrentUser.lastname = lastname.getText().toString();
+                CurrentUser.email = username.getText().toString();
+
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                db.collection("users").document(CurrentUser.user_id).update("firstname", CurrentUser.firstname, "lastname", CurrentUser.lastname, "email", CurrentUser.email).addOnCompleteListener(
+                        task -> {
+                            Toast.makeText(getContext(), "Account updated", Toast.LENGTH_SHORT).show();
+                        }
+                );
+
+            }
+        });
+
 
         return v;
     }
