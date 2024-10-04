@@ -66,7 +66,29 @@ public class PreviewRideMap extends Fragment {
             PreviewRideMap.this.googleMap = googleMap;
             LatLng intramuros = new LatLng(14.591473, 120.975280); // Latitude and longitude of Intramuros
             googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(intramuros, 16)); // 15 is the zoom level
+
+
+            Bundle bundle = getArguments();
+            System.out.println("Bundle: " + bundle);
+            HashMap<String, Object> currentRide = (HashMap<String, Object>) bundle.getSerializable("currentRide");
+            System.out.println("Current Ride: " + currentRide);
+            ArrayList<HashMap<String, Double>> path = (ArrayList<HashMap<String, Double>>) currentRide.get("path");
+
+            pointA = new LatLng(path.get(0).get("latitude"), path.get(0).get("longitude"));
+            pointB = new LatLng(path.get(path.size() - 1).get("latitude"), path.get(path.size() - 1).get("longitude"));
+
+            googleMap.addMarker(new MarkerOptions().position(pointA).title("Start"));
+            googleMap.addMarker(new MarkerOptions().position(pointB).title("End"));
+            PolylineOptions polylineOptions = new PolylineOptions();
+            for (HashMap<String, Double> point : path) {
+                LatLng latLng = new LatLng(point.get("latitude"), point.get("longitude"));
+                polylineOptions.add(latLng);
+            }
+            googleMap.addPolyline(polylineOptions);
+
+
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pointA, 14));
+
 
 
 

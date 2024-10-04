@@ -108,7 +108,7 @@ public class Login extends Fragment {
                                         CurrentUser.vehicle_type = task.getResult().getDocuments().get(0).get("vehicle_type").toString();
                                         Fragment selectedFragment = new Home();
                                         if (selectedFragment != null) {
-                                            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                                            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, selectedFragment).commit();
                                             getActivity().findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
                                         }
 
@@ -129,7 +129,7 @@ public class Login extends Fragment {
             public void onClick(View v) {
                 Fragment selectedFragment = new Registration();
                 if (selectedFragment != null) {
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                    getActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, selectedFragment).commit();
                 }
             }
         });

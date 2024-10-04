@@ -11,6 +11,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentManager;
+
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -54,7 +59,6 @@ public class HistoryAdapter extends BaseAdapter {
     public void refreshList(List<Map<String, Object>> newHistoryList) {
         this.historyList = newHistoryList;
         notifyDataSetChanged();
-        int count = 0;
     }
 
     public void getUpdatedHistory() {
@@ -81,6 +85,12 @@ public class HistoryAdapter extends BaseAdapter {
                         ride.put("distance", documentSnapshot.get("distance"));
                         ride.put("fare", documentSnapshot.get("fare"));
                         ride.put("ride_id", documentSnapshot.getId());
+                        ride.put("extension", documentSnapshot.get("extension"));
+                        ride.put("passenger_quantity", documentSnapshot.get("passenger_quantity"));
+                        ride.put("fare_type", documentSnapshot.get("fare_type"));
+                        ride.put("vehicle_type", documentSnapshot.get("vehicle_type"));
+                        ride.put("path", documentSnapshot.get("path"));
+
 
                         updatedHistoryList.add(ride);
                     }
@@ -88,16 +98,16 @@ public class HistoryAdapter extends BaseAdapter {
                 });
     }
     @Override
-  public View getView(int position, View convertView, ViewGroup parent) {
-    convertView = inflateView();
+    public View getView(int position, View convertView, ViewGroup parent) {
+        convertView = inflateView();
 
-    Map<String, Object> history = historyList.get(position);
+        Map<String, Object> history = historyList.get(position);
 
-    setupTextViews(convertView, history);
-    setupButtons(convertView, history);
+        setupTextViews(convertView, history);
+        setupButtons(convertView, history);
 
-    return convertView;
-}
+        return convertView;
+    }
     /**
      * Inflate the view for the history adapter.
      *
@@ -152,9 +162,9 @@ public class HistoryAdapter extends BaseAdapter {
      * @param history the history item data
      */
     private void setupButtons(View convertView, Map<String, Object> history) {
-         viewRideBtn = convertView.findViewById(R.id.historyViewRideBtn);
-         endRideBtn = convertView.findViewById(R.id.historyEndRideBtn);
-         extendRideBtn = convertView.findViewById(R.id.historyExtendRideBtn);
+        viewRideBtn = convertView.findViewById(R.id.historyViewRideBtn);
+        endRideBtn = convertView.findViewById(R.id.historyEndRideBtn);
+        extendRideBtn = convertView.findViewById(R.id.historyExtendRideBtn);
 
         extendRideBtn.setVisibility(View.GONE);
 
@@ -315,7 +325,7 @@ public class HistoryAdapter extends BaseAdapter {
 
         }
 
-        
+
 
 
 
@@ -337,10 +347,15 @@ public class HistoryAdapter extends BaseAdapter {
             double durationInMinutes = duration / 60000;
             double fare = calculateFare(finalBASE_RATE, finalPER_MINUTE_RATE, extension, passenger_quantity, durationInMinutes);
             System.out.println("Fare: " + fare);
-            db.collection("rides").document(ride_id).update("fare", fare);
-            db.collection("rides").document(ride_id).update("duration", durationInMinutes);
+            db.collection("rides").document(ride_id).update("fare", fare).addOnCompleteListener(task -> {
+                db.collection("rides").document(ride_id).update("duration", durationInMinutes).addOnCompleteListener(t -> {
+                    getUpdatedHistory();
+                });
+            });
+
             // refresh the history list
-            getUpdatedHistory();
+
+
         });
 
 
@@ -392,7 +407,7 @@ public class HistoryAdapter extends BaseAdapter {
         System.out.println("Per Minute Rate: " + PER_MINUTE_RATE);
         System.out.println("Vehicle Type: " + CurrentUser.vehicle_type);
         if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")){
-             timeElapsed = durationInMinutes - (60 * Double.parseDouble(extension));
+            timeElapsed = durationInMinutes - (60 * Double.parseDouble(extension));
 
         }
         else{
@@ -418,20 +433,18 @@ public class HistoryAdapter extends BaseAdapter {
      * @param currentRide the ride to view
      */
     public void viewRide(Map<String, Object> currentRide){
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
-        builder.setTitle("Ride Details");
-        // Convert duration from milliseconds to minutes
-        double duration = Double.parseDouble(currentRide.get("duration").toString()) / 60000;
-        long roundedDuration = Math.round(duration);
-        ViewRideFragment viewRideFragment = new ViewRideFragment();
+        System.out.println(currentRide);
+
+        Fragment fragment = new ViewRideFragment();
         Bundle bundle = new Bundle();
         bundle.putSerializable("currentRide", (HashMap<String, Object>) currentRide);
-        viewRideFragment.setArguments(bundle);
-        builder.setView(viewRideFragment.onCreateView(inflater, null, null));
-        builder.show();
+        fragment.setArguments(bundle);
+        FragmentManager fragmentManager = ((MainActivity) context).getSupportFragmentManager();
+        fragmentManager.beginTransaction().addToBackStack(null).replace(R.id.fragment_container, fragment).commit();
 
 
-        }
+
+    }
     /**
      * Extend the duration of a ride.
      *
@@ -441,7 +454,7 @@ public class HistoryAdapter extends BaseAdapter {
         Double currentExtension = Double.parseDouble(currentRide.get("extension").toString());
         Double newExtension = currentExtension + 1;
         db.collection("rides").document(currentRide.get("ride_id").toString()).update("extension", newExtension);
-           Toast toast = Toast.makeText(context, "Ride Extended", Toast.LENGTH_SHORT);
+        Toast toast = Toast.makeText(context, "Ride Extended", Toast.LENGTH_SHORT);
     }
 
 

@@ -7,10 +7,12 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card1"
+
         android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="28dp">
+        android:layout_margin="28dp"
+       >
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -20,7 +22,7 @@
             android:layout_gravity="center">
 
 
-
+            <!-- Buttons -->
             <LinearLayout
 
                 android:layout_width="match_parent"
@@ -34,62 +36,58 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/title"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"
-                    />
+                    android:textAppearance="?attr/textAppearanceTitleMedium" />
+
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:id="@+id/historyStartTime"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?android:attr/textColorSecondary"
-                    />
-                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:id="@+id/historyEndTime"
                     android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?android:attr/textColorSecondary"
-                    />
+                    android:textColor="?android:attr/textColorSecondary" />
+
+                <TextView
+                    android:id="@+id/historyEndTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?android:attr/textColorSecondary" />
 
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
+
                     <Button
-                        style="@style/Widget.Material3.Button.ElevatedButton"
                         android:id="@+id/historyEndRideBtn"
+                        style="@style/Widget.Material3.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="10dp"
-                        android:text="End Ride"
-                        />
+                        android:text="End Ride" />
 
                     <Button
-                        style="@style/Widget.Material3.Button.ElevatedButton"
                         android:id="@+id/historyExtendRideBtn"
+                        style="@style/Widget.Material3.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="10dp"
-                        android:text="Extend Ride"
-                        />
+                        android:text="Extend Ride" />
 
 
                     <Button
-                        style="@style/Widget.Material3.Button.ElevatedButton"
                         android:id="@+id/historyViewRideBtn"
+                        style="@style/Widget.Material3.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="View Ride"
-                        />
+                        android:text="View Ride" />
                 </LinearLayout>
 
 
             </LinearLayout>
 
-            <!-- Buttons -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

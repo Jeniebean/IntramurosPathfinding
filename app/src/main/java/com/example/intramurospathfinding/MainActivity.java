@@ -34,9 +34,9 @@ public class MainActivity extends AppCompatActivity {
         fragment_container = findViewById(R.id.fragment_container);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Splash()).commit();
         //fragment_container = findViewById(R.id.fragment_container);
-        //getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Login()).commit();
+        //getSupportFragmentManager()..addToBackStack(null().addToBackStack(null.replace(R.id.fragment_container, new Login()).commit();
 
-        // Wait for 5 seconds then switch to the Login fragment
+        // Wait for 5 seconds then switch to the Login Screen fragment
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (selectedFragment != null) {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                    getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, selectedFragment).commit();
                 }
 
                 return true;

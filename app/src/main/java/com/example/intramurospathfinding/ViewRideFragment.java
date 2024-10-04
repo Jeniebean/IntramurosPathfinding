@@ -8,10 +8,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -67,75 +70,89 @@ public class ViewRideFragment extends Fragment {
 
 
     Map<String, Object> currentRide;
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
 
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                         Bundle savedInstanceState) {
+    // Inflate the layout for this fragment
+    View v =  inflater.inflate(R.layout.fragment_view_ride, container, false);
+    Bundle bundle = getArguments();
 
-        // Inflate the layout for this fragment
-        View v =  inflater.inflate(R.layout.fragment_view_ride, container, false);
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-           currentRide = (Map<String, Object>) bundle.getSerializable("currentRide");
-            System.out.println(currentRide);
-            TextView distance = v.findViewById(R.id.distance);
-            TextView dateStarted  = v.findViewById(R.id.dateStarted);
-            TextView dateEnded = v.findViewById(R.id.dateEnded);
-            TextView status = v.findViewById(R.id.status);
-            TextView fare = v.findViewById(R.id.fare);
-
-            long timestamp = Long.parseLong(currentRide.get("date_started").toString());
-            Date date = new Date(timestamp);
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); // Change this format to whatever you need
-            String dateString = formatter.format(date);
-
-
-
-            if (currentRide.get("distance") != null){
-                distance.setText("Distance: " + currentRide.get("distance").toString() + " meters");
-            } else {
-                distance.setText("Distance:");
-            }
-
-            dateStarted.setText("Date Started: " + dateString);
-
-            if (currentRide.get("date_ended") != null) {
-                timestamp = Long.parseLong(currentRide.get("date_ended").toString());
-                date = new Date(timestamp);
-                dateString = formatter.format(date);
-                dateEnded.setText("Date Ended: " + dateString);
-            } else {
-                dateEnded.setText("Date Ended: Ongoing");
-            }
-
-            status.setText("Status: " + currentRide.get("status").toString());
-
-            double fareValue = Double.parseDouble(currentRide.get("fare").toString());
-            // Convert to two decimal places
-            fareValue = Math.round(fareValue * 100.0) / 100.0;
-            fare.setText("Fare: " + fareValue);
-
-
-        }
-
-
-
-
-
-
-        return v;
-
-
+    if (bundle != null) {
+        currentRide = (Map<String, Object>) bundle.getSerializable("currentRide");
+        setupViews(v, bundle);
+        populateData(v);
     }
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        // The fragment is now attached to the activity
-        // You can perform your operations here
+    return v;
+}
 
-        System.out.println("Fragment attached to activity");
+/**
+ * This method is used to setup the views and their listeners.
+ *
+ * @param v The inflated view.
+ * @param bundle The arguments passed to the fragment.
+ */
+private void setupViews(View v, Bundle bundle) {
+
+    FragmentContainerView previewRideMap = v.findViewById(R.id.previewRideMap);
+    FragmentManager fragmentManager = getChildFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    PreviewRideMap previewRideMapFragment = new PreviewRideMap();
+    previewRideMapFragment.setArguments(bundle);
+    fragmentTransaction.add(previewRideMap.getId(), previewRideMapFragment);
+    fragmentTransaction.commit();
+
+}
+
+/**
+ * This method is used to populate the data into the views.
+ *
+ * @param v The inflated view.
+ */
+private void populateData(View v) {
+    TextView distance = v.findViewById(R.id.distance);
+    TextView dateStarted  = v.findViewById(R.id.dateStarted);
+    TextView dateEnded = v.findViewById(R.id.dateEnded);
+    TextView status = v.findViewById(R.id.status);
+    TextView fare = v.findViewById(R.id.fare);
+
+    long timestamp = Long.parseLong(currentRide.get("date_started").toString());
+    Date date = new Date(timestamp);
+    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); // Change this format to whatever you need
+    String dateString = formatter.format(date);
+
+    if (currentRide.get("distance") != null){
+        distance.setText("Distance: " + currentRide.get("distance").toString() + " meters");
+    } else {
+        distance.setText("Distance:");
     }
+
+    dateStarted.setText("Date Started: " + dateString);
+
+    if (currentRide.get("date_ended") != null) {
+        timestamp = Long.parseLong(currentRide.get("date_ended").toString());
+        date = new Date(timestamp);
+        dateString = formatter.format(date);
+        dateEnded.setText("Date Ended: " + dateString);
+    } else {
+        dateEnded.setText("Date Ended: Ongoing");
+    }
+
+    status.setText("Status: " + currentRide.get("status").toString());
+
+    double fareValue = Double.parseDouble(currentRide.get("fare").toString());
+    // Convert to two decimal places
+    fareValue = Math.round(fareValue * 100.0) / 100.0;
+    fare.setText("Fare: " + fareValue);
+}
+
+
+
+
+
+
+
 
 
 }

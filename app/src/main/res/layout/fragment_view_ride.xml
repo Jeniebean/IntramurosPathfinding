@@ -13,47 +13,88 @@
         android:paddingBottom="50dp"
         android:paddingLeft="20dp"
 
+
         >
 
-        <androidx.fragment.app.FragmentContainerView
-            android:layout_width="300dp"
-            android:layout_height="250dp"
-            android:layout_marginTop="25dp"
-            android:id="@+id/previewRideMap"
-            android:layout_gravity="center">
 
-        </androidx.fragment.app.FragmentContainerView>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card1"
 
-        <TextView
-            android:id="@+id/dateStarted"
-            android:layout_width="match_parent"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
-            android:text="Date Started: "/>
+            android:layout_gravity="center"
+            android:layout_margin="28dp">
 
-        <TextView
-            android:id="@+id/dateEnded"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Date Ended: "/>
+               <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:orientation="vertical"
+                    android:layout_gravity="center">
+                   <androidx.fragment.app.FragmentContainerView
+                       android:layout_width="300dp"
+                       android:layout_height="200dp"
+                       android:layout_marginTop="50dp"
+                       style="@style/ShapeAppearance.Material3.Corner.Medium"
+                       android:id="@+id/previewRideMap"
+                       android:layout_gravity="center">
 
-        <TextView
-            android:id="@+id/distance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Distance: "/>
+                   </androidx.fragment.app.FragmentContainerView>
 
 
-        <TextView
-            android:id="@+id/fare"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Fare: "/>
 
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Status: "/>
+                   <TextView
+                       android:id="@+id/dateStarted"
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:text="Date Started: "
+                       android:textSize="20sp"
+                       android:layout_margin="5dp"
+                       android:layout_marginLeft="10dp"/>
+
+                   <TextView
+                       android:id="@+id/dateEnded"
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:text="Date Ended: "
+                       android:textSize="20sp"
+                       android:layout_margin="5dp"
+                       android:layout_marginLeft="10dp"/>
+
+                   <TextView
+                       android:id="@+id/distance"
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:text="Distance: "
+                       android:textSize="20sp"
+                       android:layout_margin="5dp"
+                       android:layout_marginLeft="10dp"/>
+
+                   <TextView
+                       android:id="@+id/fare"
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:text="Fare: "
+                       android:textSize="20sp"
+                       android:layout_margin="5dp"
+                       android:layout_marginStart="10dp"/>
+
+                   <TextView
+                       android:id="@+id/status"
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:text="Status: "
+                       android:textSize="20sp"
+                       android:layout_margin="5dp"
+                       android:layout_marginLeft="10dp"/>
+               </LinearLayout>
+
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+
+
 
     </LinearLayout>
 
