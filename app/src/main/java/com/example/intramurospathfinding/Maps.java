@@ -3,6 +3,7 @@ package com.example.intramurospathfinding;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.graphics.Color;
 import android.graphics.drawable.AdaptiveIconDrawable;
@@ -89,7 +90,7 @@ public class Maps extends Fragment {
                         googleMap.addMarker(new MarkerOptions().position(pointB).title("Point B"));
                         drawPath(googleMap, pointA, pointB);
 
-                        resetMapPath.setVisibility(View.VISIBLE);
+
                     } else {
 
 
@@ -118,46 +119,21 @@ public class Maps extends Fragment {
             try {
                 String jsonResponse = makeHttpRequest(url);
                 List<List<LatLng>> allPaths = parseGraphHopperResponse(jsonResponse);
-                updateMapWithPaths(googleMap, allPaths, colors);
+                System.out.println("Successfully Parsed GraphHopper Response");
+                routes fragment = new routes();
+                fragment.setJsonResponse(jsonResponse, origin, destination);
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, fragment); // replace 'container' with the id of your FrameLayout
+                transaction.addToBackStack(null);
+                transaction.commit();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
     }
 
-    /**
-     * Updates the map with the given paths.
-     * @param googleMap the GoogleMap object
-     * @param allPaths the paths to be drawn on the map
-     * @param colors the colors to be used for the paths
-     */
-    private void updateMapWithPaths(GoogleMap googleMap, List<List<LatLng>> allPaths, int[] colors) {
-        getActivity().runOnUiThread(() -> {
-            for (int i = 0; i < allPaths.size(); i++) {
-                List<LatLng> path = allPaths.get(i);
-                PolylineOptions polylineOptions = new PolylineOptions().addAll(path).color(colors[i % colors.length]).zIndex(1000).clickable(true);
-                Polyline polyline = googleMap.addPolyline(polylineOptions);
-                polylineData.put(polyline, path);
-            }
-            setPolylineClickListener(googleMap);
-        });
-    }
-
-    /**
-     * Sets a click listener for the polylines on the map.
-     * @param googleMap the GoogleMap object
-     */
-    private void setPolylineClickListener(GoogleMap googleMap) {
-        googleMap.setOnPolylineClickListener(polyline -> {
-            List<LatLng> path = polylineData.get(polyline);
-            List<List<LatLng>> pathsList = new ArrayList<>(polylineData.values());
-            int selectedIndex = pathsList.indexOf(path);
-            selectedPath = ridePath.get(selectedIndex);
 
 
-            showStartRideDialog(path);
-        });
-    }
 
     /**
      * Shows a dialog to confirm the start of the ride.
@@ -231,8 +207,15 @@ public class Maps extends Fragment {
         String strOrigin = "point=" + origin.latitude + "," + origin.longitude;
         String strDest = "point=" + destination.latitude + "," + destination.longitude;
         String key = "&key=" + API_KEY;
-        String multiplePaths = "algorithm=alternative_route&alternative_route.max_paths=3&alternative_route.max_weight_factor=20&alternative_route.max_share_factor=20&alternative_route.min_plateau_factor=0.3&alternative_route.min_factor=0.3&alternative_route.max_factor=50&alternative_route.min_paths=2&alternative_route.min_weight_factor=0.7&alternative_route.min_share_factor=0.3&alternative_route.max_plateau_factor=0.7";
-        String parameters = strOrigin + "&" + strDest + "&vehicle=car&locale=en&" + multiplePaths + key;
+        String multiplePaths = "algorithm=alternative_route&alternative_route.max_paths=3&alternative_route.max_weight_factor=2.5&alternative_route.max_share_factor=5&alternative_route.min_plateau_factor=0.3&alternative_route.min_factor=0.3&alternative_route.max_factor=30&alternative_route.min_paths=2&alternative_route.min_weight_factor=0.7&alternative_route.min_share_factor=0.3&alternative_route.max_plateau_factor=0.7";
+        String parameters;
+        if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")) {
+            parameters = strOrigin + "&" + strDest + "&vehicle=car&locale=en&" + multiplePaths + key;
+        }
+        else{
+            parameters = strOrigin + "&" + strDest + "&vehicle=foot&locale=en&" + multiplePaths + key;
+        }
+
 
         System.out.println("https://graphhopper.com/api/1/route?" + parameters);
         return "https://graphhopper.com/api/1/route?" + parameters;
@@ -252,6 +235,7 @@ public class Maps extends Fragment {
             ridePath.add(new HashMap<String, Object>(){{
                 put("distance", path.get("distance"));
                 put("duration", path.get("time"));
+
             }});
             allPaths.add(decodePolyline(pointsStr));
         }

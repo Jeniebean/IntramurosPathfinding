@@ -64,8 +64,6 @@ public class AlternativeRoutesFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_alternative_routes, container, false);
 
-        alternativeRoutesListView = v.findViewById(R.id.alternativeRoutesListView);
-        alternativeRoutesListView.setAdapter(new RoutesAdapter(getContext(), null));
 
 
 

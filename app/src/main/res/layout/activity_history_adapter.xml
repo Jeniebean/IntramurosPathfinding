@@ -58,28 +58,19 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
                     <Button
                         android:id="@+id/historyEndRideBtn"
-                        style="@style/Widget.Material3.Button"
+                        style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="10dp"
+                        android:layout_marginRight="15dp"
                         android:text="End Ride" />
 
                     <Button
-                        android:id="@+id/historyExtendRideBtn"
-                        style="@style/Widget.Material3.Button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="10dp"
-                        android:text="Extend Ride" />
-
-
-                    <Button
                         android:id="@+id/historyViewRideBtn"
-                        style="@style/Widget.Material3.Button"
+                        style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="View Ride" />

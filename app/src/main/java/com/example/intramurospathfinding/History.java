@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -73,8 +74,12 @@ public class History extends Fragment {
         View v = inflater.inflate(R.layout.fragment_history, container, false);
 
         ListView listView = (ListView) v.findViewById(R.id.history_list);
-
         getHistory(listView, v);
+
+        // trigger the bottom sheet
+        View bottomSheet = v.findViewById(R.id.historyDetailBottomSheet);
+        BottomSheetBehavior<View> bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
 
         return v;

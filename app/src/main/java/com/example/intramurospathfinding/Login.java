@@ -110,6 +110,8 @@ public class Login extends Fragment {
                                         if (selectedFragment != null) {
                                             getActivity().getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, selectedFragment).commit();
                                             getActivity().findViewById(R.id.bottom_navigation).setVisibility(View.VISIBLE);
+                                            // set selected item in bottom nav
+                                            getActivity().findViewById(R.id.bottom_navigation).findViewById(R.id.home).performClick();
                                         }
 
 

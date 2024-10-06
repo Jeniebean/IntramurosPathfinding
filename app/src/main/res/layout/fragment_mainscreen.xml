@@ -11,39 +11,35 @@
     <!-- TODO: Update blank fragment layout -->
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_width="1389dp"
+        android:layout_height="2333dp"
+        android:layout_marginBottom="70dp"
         android:gravity="center|bottom"
-        android:layout_marginBottom="70dp">
+        android:orientation="vertical">
 
 
         <Button
-        android:id="@+id/loginSplashBtn"
-        style="@style/Widget.Material3.Button.ElevatedButton"
-        android:layout_width="330dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-
-        android:text="Login"
-        android:textSize="20sp"
-        android:layout_gravity="center"
- />
-
-
-        <Button
-            style="?attr/materialButtonOutlinedStyle"
-            android:id="@+id/registerSplashBtn"
+            android:id="@+id/loginSplashBtn"
+            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="330dp"
             android:layout_height="60dp"
+            android:layout_gravity="center"
+
+            android:layout_marginTop="20dp"
+            android:text="Login"
+            android:textSize="20sp" />
+
+
+        <Button
+            android:id="@+id/registerSplashBtn"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="330dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
             android:layout_marginTop="10dp"
             android:text="Sign up"
-            android:layout_gravity="center"
-            android:textSize="20sp"
             android:textColor="#49423D"
-            />
-
-
+            android:textSize="20sp" />
 
 
     </LinearLayout>

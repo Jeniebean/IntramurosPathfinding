@@ -22,7 +22,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Choose a Ride"
+                android:id="@+id/routeNumber"
                 style="@style/TextAppearance.AppCompat.Caption"
                 android:textSize="20sp"
                 android:textAlignment="center"/>
@@ -30,6 +30,9 @@
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
                 android:layout_height="2dp" />
+
+
+
 
 
             <LinearLayout
@@ -40,13 +43,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
                         android:id="@+id/rideName"
-                        android:text="Ride Name"
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
                         android:layout_margin="10dp"
-                        />
+                        android:text="Ride Name" />
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -71,11 +75,12 @@
                         android:layout_margin="10dp"
                         />
                    <Button
-                        style="@style/Widget.Material3.Button.Icon"
+                        style="@style/Widget.Material3.Button.TextButton"
                        android:layout_width="wrap_content"
                        android:layout_height="wrap_content"
                        android:layout_gravity="end"
                        android:layout_margin="10dp"
+                       android:id="@+id/goBtn"
                        android:text="Go">
 
                    </Button>

@@ -1,6 +1,7 @@
 package com.example.intramurospathfinding;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -11,16 +12,21 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import org.w3c.dom.Text;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,9 +36,9 @@ import java.util.Map;
 public class HistoryAdapter extends BaseAdapter {
 
     private Context context;
-    private List<Map<String, Object>> historyList; // replace String with your actual data type
+    private static List<Map<String, Object>> historyList; // replace String with your actual data type
     private LayoutInflater inflater;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
     Button extendRideBtn, endRideBtn, viewRideBtn;
 
     public HistoryAdapter(Context context, List<Map<String,Object>> historyList) {
@@ -57,7 +63,7 @@ public class HistoryAdapter extends BaseAdapter {
     }
 
     public void refreshList(List<Map<String, Object>> newHistoryList) {
-        this.historyList = newHistoryList;
+        historyList = newHistoryList;
         notifyDataSetChanged();
     }
 
@@ -152,7 +158,8 @@ public class HistoryAdapter extends BaseAdapter {
      */
     private String formatDate(String dateInMilliseconds) {
         Date date = new Date(Long.parseLong(dateInMilliseconds));
-        return date.toString();
+        SimpleDateFormat formatter = new SimpleDateFormat("MMM dd, yyyy hh:mm a");
+        return formatter.format(date);
     }
 
     /**
@@ -164,15 +171,12 @@ public class HistoryAdapter extends BaseAdapter {
     private void setupButtons(View convertView, Map<String, Object> history) {
         viewRideBtn = convertView.findViewById(R.id.historyViewRideBtn);
         endRideBtn = convertView.findViewById(R.id.historyEndRideBtn);
-        extendRideBtn = convertView.findViewById(R.id.historyExtendRideBtn);
-
-        extendRideBtn.setVisibility(View.GONE);
 
         if (isRideOngoing(history)) {
             endRideBtn.setVisibility(View.VISIBLE);
             endRideBtn.setOnClickListener(v -> endRide(history));
         } else {
-            endRideBtn.setVisibility(View.INVISIBLE);
+            endRideBtn.setVisibility(View.GONE);
         }
 
         viewRideBtn.setOnClickListener(v -> viewRide(history));
@@ -204,9 +208,10 @@ public class HistoryAdapter extends BaseAdapter {
             @Override
             public void run() {
                 double remainingTimeInMinutes = calculateRemainingTimeInMinutes(history, startTime);
-                if (remainingTimeInMinutes <= 0) {
-                    showExtendRideButton(history, historyEndTime, extendRideBtn);
-                } else {
+                if(remainingTimeInMinutes <= 0) {
+                    // TODO: Automatic Extension
+                }
+                else {
                     historyEndTime.setText("End Time: " + remainingTimeInMinutes + " minutes remaining");
                 }
                 handler.postDelayed(this, 30000);
@@ -291,7 +296,42 @@ public class HistoryAdapter extends BaseAdapter {
         Double BASE_RATE = 0.0;
         Double PER_MINUTE_RATE = 0.0;
 
+        Double[] rate = computeBaseFare(vehicleType, fare_type);
+        BASE_RATE = rate[0];
+        PER_MINUTE_RATE = rate[1];
 
+        System.out.println("Base Rate: " + BASE_RATE);
+        System.out.println("Extension: " + extension);
+        System.out.println("Passenger Quantity: " + passenger_quantity);
+        System.out.println("Ride ID: " + ride_id);
+
+        Map<String, Object> currentRide = new HashMap<>();
+        Double finalBASE_RATE = BASE_RATE;
+
+        Double finalPER_MINUTE_RATE = PER_MINUTE_RATE;
+        db.collection("rides").document(ride_id).get().addOnSuccessListener(documentSnapshot -> {
+            currentRide.put("date_started", documentSnapshot.get("date_started"));
+            currentRide.put("date_ended", documentSnapshot.get("date_ended"));
+            double startTime = Double.parseDouble(currentRide.get("date_started").toString());
+            double endTime = Double.parseDouble(currentRide.get("date_ended").toString());
+            double duration = endTime - startTime;
+            double durationInMinutes = duration / 60000;
+            double fare = calculateFare(finalBASE_RATE, finalPER_MINUTE_RATE, extension, passenger_quantity, durationInMinutes);
+            System.out.println("Fare: " + fare);
+            db.collection("rides").document(ride_id).update("fare", fare).addOnCompleteListener(task -> {
+                db.collection("rides").document(ride_id).update("duration", durationInMinutes).addOnCompleteListener(t -> {
+                    getUpdatedHistory();
+                });
+            });
+
+        });
+
+    }
+
+
+    public static Double[] computeBaseFare(String vehicleType, String fare_type){
+        Double BASE_RATE = 0.0;
+        Double PER_MINUTE_RATE = 0.0;
         if (vehicleType.equalsIgnoreCase("kalesa")) {
             System.out.println("Kalesa");
             if (fare_type.equalsIgnoreCase("regular")) {
@@ -325,44 +365,9 @@ public class HistoryAdapter extends BaseAdapter {
 
         }
 
-
-
-
-
-        System.out.println("Base Rate: " + BASE_RATE);
-        System.out.println("Extension: " + extension);
-        System.out.println("Passenger Quantity: " + passenger_quantity);
-        System.out.println("Ride ID: " + ride_id);
-
-        Map<String, Object> currentRide = new HashMap<>();
-        Double finalBASE_RATE = BASE_RATE;
-
-        Double finalPER_MINUTE_RATE = PER_MINUTE_RATE;
-        db.collection("rides").document(ride_id).get().addOnSuccessListener(documentSnapshot -> {
-            currentRide.put("date_started", documentSnapshot.get("date_started"));
-            currentRide.put("date_ended", documentSnapshot.get("date_ended"));
-            double startTime = Double.parseDouble(currentRide.get("date_started").toString());
-            double endTime = Double.parseDouble(currentRide.get("date_ended").toString());
-            double duration = endTime - startTime;
-            double durationInMinutes = duration / 60000;
-            double fare = calculateFare(finalBASE_RATE, finalPER_MINUTE_RATE, extension, passenger_quantity, durationInMinutes);
-            System.out.println("Fare: " + fare);
-            db.collection("rides").document(ride_id).update("fare", fare).addOnCompleteListener(task -> {
-                db.collection("rides").document(ride_id).update("duration", durationInMinutes).addOnCompleteListener(t -> {
-                    getUpdatedHistory();
-                });
-            });
-
-            // refresh the history list
-
-
-        });
-
-
+        return new Double[]{BASE_RATE, PER_MINUTE_RATE};
 
     }
-
-
     /**
      * Calculate the fare based on various parameters.
      *
@@ -373,27 +378,9 @@ public class HistoryAdapter extends BaseAdapter {
      * @param durationInMinutes the duration of the ride in minutes
      * @return the calculated fare
      */
-    public double calculateFare(Double BASE_RATE, Double PER_MINUTE_RATE, String extension, String passenger_quantity, double durationInMinutes) {
+    public static double calculateFare(Double BASE_RATE, Double PER_MINUTE_RATE, String extension, String passenger_quantity, double durationInMinutes) {
 
         double timeElapsed = 0;
-
-
-        // 60 minutes for kalesa
-
-        // 65 minutes
-
-        // 1 extensions
-
-        // 5 minutes
-
-        // * PER_MINUTE_RATE
-
-
-        // 60
-
-        // 60
-
-        // 30
 
 
 
@@ -406,13 +393,12 @@ public class HistoryAdapter extends BaseAdapter {
         System.out.println("Base Rate: " + BASE_RATE);
         System.out.println("Per Minute Rate: " + PER_MINUTE_RATE);
         System.out.println("Vehicle Type: " + CurrentUser.vehicle_type);
-        if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")){
+        if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa") || CurrentUser.vehicle_type.equalsIgnoreCase("pedicab")){
             timeElapsed = durationInMinutes - (60 * Double.parseDouble(extension));
 
         }
-        else{
+        else {
             timeElapsed = durationInMinutes - (30 * Double.parseDouble(extension));
-
         }
 
         if (timeElapsed > 0){
@@ -435,15 +421,54 @@ public class HistoryAdapter extends BaseAdapter {
     public void viewRide(Map<String, Object> currentRide){
         System.out.println(currentRide);
 
-        Fragment fragment = new ViewRideFragment();
+        Drawable dateDrawable = ContextCompat.getDrawable(context, R.drawable.date);
+        dateDrawable.setBounds(0, 0, 60, 60);
+
+        Drawable distanceDrawable = ContextCompat.getDrawable(context, R.drawable.distance);
+        distanceDrawable.setBounds(0, 0, 60, 60);
+
+        Drawable fareDrawable = ContextCompat.getDrawable(context, R.drawable.coins);
+        fareDrawable.setBounds(0, 0, 60, 60);
+
+        TextView dateStarted = ((MainActivity) context).findViewById(R.id.dateStarted);
+        TextView dateEnded = ((MainActivity) context).findViewById(R.id.dateEnded);
+        TextView distance = ((MainActivity) context).findViewById(R.id.distance);
+        TextView fare = ((MainActivity) context).findViewById(R.id.fare);
+        FragmentContainerView previewRideMap = ((MainActivity) context).findViewById(R.id.previewRideMap);
+
+        dateStarted.setCompoundDrawables(dateDrawable, null, null, null);
+        dateStarted.setText(formatDate(currentRide.get("date_started").toString()));
+        if (currentRide.get("date_ended") != null) {
+            dateEnded.setCompoundDrawables(dateDrawable, null, null, null);
+            dateEnded.setText(formatDate(currentRide.get("date_ended").toString()));
+        } else {
+            dateEnded.setText("Date Ended: Ongoing");
+        }
+
+        distance.setCompoundDrawables(distanceDrawable, null, null, null);
+        distance.setText("Distance: " + currentRide.get("distance").toString() + " m");
+        double fareValue = Double.parseDouble(currentRide.get("fare").toString());
+        String fareFormatted = String.format("%.2f", fareValue);
+        fare.setCompoundDrawables(fareDrawable, null, null, null);
+        fare.setText(fareFormatted + " PHP");
+
+        // Show the preview map
+
+        Fragment fragment = new PreviewRideMap();
         Bundle bundle = new Bundle();
         bundle.putSerializable("currentRide", (HashMap<String, Object>) currentRide);
         fragment.setArguments(bundle);
+        ((MainActivity) context).getSupportFragmentManager().beginTransaction().replace(R.id.previewRideMap, fragment).commit();
+
+
+
+
+        // Trigger the bottom sheet to be revealed
+
         FragmentManager fragmentManager = ((MainActivity) context).getSupportFragmentManager();
-        fragmentManager.beginTransaction().addToBackStack(null).replace(R.id.fragment_container, fragment).commit();
-
-
-
+        View bottomSheet = ((MainActivity) context).findViewById(R.id.historyDetailBottomSheet);
+        BottomSheetBehavior<View> bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
     /**
      * Extend the duration of a ride.

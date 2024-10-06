@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -67,6 +68,37 @@ public class Registration extends Fragment {
     }
 
 
+    public static boolean validateInput(String firstname, String lastname, String password) {
+        return isNameValid(firstname) && isNameValid(lastname) && isPasswordValid(password);
+    }
+
+    public static boolean isNameValid(String name) {
+        return name.matches("[a-zA-Z]*") && name.length() <= 255 && name.length() > 0;
+    }
+
+    public static boolean isPasswordValid(String password) {
+        return password.length() <= 255;
+    }
+
+    private Map<String, Object> createUser(String firstname, String lastname, String username, String password, String vehicleType) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("firstname", firstname);
+        user.put("lastname", lastname);
+        user.put("username", username);
+        user.put("password", password);
+        user.put("vehicle_type", vehicleType);
+        return user;
+    }
+
+    private void addUserToDatabase(Map<String, Object> user) {
+        db.collection("users").add(user);
+    }
+
+    private void navigateToLogin() {
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Login()).commit();
+    }
+
+
     Button submitBtn;
     RadioGroup vehicle_type;
     RadioButton kalesaRadioButton, pedicabRadioButton, tricycleRadioButton;
@@ -97,43 +129,43 @@ public class Registration extends Fragment {
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String pass = password.getText().toString();
-                String cpass = confirmPassword.getText().toString();
+                String firstnameStr = firstname.getText().toString();
+                String lastnameStr = lastname.getText().toString();
+                String usernameStr = username.getText().toString();
+                String passwordStr = password.getText().toString();
+                String confirmPasswordStr = confirmPassword.getText().toString();
 
-                if (pass.equals(cpass)) {
-                    // Add user to database
-                    // Redirect to home page
+                if (passwordStr.equals(confirmPasswordStr) && validateInput(firstnameStr, lastnameStr, passwordStr)) {
+                    String vehicleType = getVehicleType();
+                    Map<String, Object> user = createUser(firstnameStr, lastnameStr, usernameStr, passwordStr, vehicleType);
 
-                    Map<String, Object> user = new HashMap<>();
-
-                    user.put("firstname", firstname.getText().toString());
-                    user.put("lastname", lastname.getText().toString());
-                    user.put("username", username.getText().toString());
-                    user.put("password", password.getText().toString());
-
-                    int selectedId = vehicle_type.getCheckedRadioButtonId();
-                    if (selectedId == kalesaRadioButton.getId()) {
-                        user.put("vehicle_type", "kalesa");
-                    } else if (selectedId == pedicabRadioButton.getId()) {
-                        user.put("vehicle_type", "pedicab");
-                    } else if (selectedId == tricycleRadioButton.getId()) {
-                        user.put("vehicle_type", "tricycle");
+                    if (vehicleType != null){
+                        addUserToDatabase(user);
+                        navigateToLogin();
                     }
 
-
-                    db.collection("users").add(user);
-
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Login()).commit();
-
-
-
+                    else{
+                        Toast.makeText(getContext(), "Please select a vehicle type", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    // Display error message
+                    Toast.makeText(getContext(), "Invalid input", Toast.LENGTH_SHORT).show();
                 }
-
-            }});
-
+            }
+        });
 
         return v;
+    }
+
+    private String getVehicleType() {
+        int selectedId = vehicle_type.getCheckedRadioButtonId();
+        if (selectedId == kalesaRadioButton.getId()) {
+            return "kalesa";
+        } else if (selectedId == pedicabRadioButton.getId()) {
+            return "pedicab";
+        } else if (selectedId == tricycleRadioButton.getId()) {
+            return "tricycle";
+        }
+
+        return null;
     }
 }

@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
@@ -70,31 +71,48 @@ public class AccountFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_account, container, false);
 
-        EditText firstname = v.findViewById(R.id.accountFirstName);
-        EditText lastname = v.findViewById(R.id.accountLastName);
-        EditText username = v.findViewById(R.id.accountEmail);
+
         updateAccountButton = v.findViewById(R.id.updateAccountButton);
         logoutButton = v.findViewById(R.id.logoutButton);
 
-        firstname.setText(CurrentUser.firstname);
-        lastname.setText(CurrentUser.lastname);
-        username.setText(CurrentUser.email);
 
         updateAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CurrentUser.firstname = firstname.getText().toString();
-                CurrentUser.lastname = lastname.getText().toString();
-                CurrentUser.email = username.getText().toString();
-
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-                db.collection("users").document(CurrentUser.user_id).update("firstname", CurrentUser.firstname, "lastname", CurrentUser.lastname, "username", CurrentUser.email).addOnCompleteListener(
-                        task -> {
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+                builder.setTitle("Update Account");
+                View view = inflater.inflate(R.layout.update_account_dialog, null);
+                builder.setView(view);
+                EditText firstnameEditText = view.findViewById(R.id.firstnameEditText);
+                EditText lastnameEditText = view.findViewById(R.id.lastnameEditText);
+                EditText emailEditText = view.findViewById(R.id.emailEditText);
+                firstnameEditText.setText(CurrentUser.firstname);
+                lastnameEditText.setText(CurrentUser.lastname);
+                emailEditText.setText(CurrentUser.email);
+                builder.setPositiveButton("Update", (dialog, which) -> {
+                    String firstname = firstnameEditText.getText().toString();
+                    String lastname = lastnameEditText.getText().toString();
+                    String email = emailEditText.getText().toString();
+                    if (firstname.isEmpty() || lastname.isEmpty() || email.isEmpty()) {
+                        Toast.makeText(getContext(), "Please fill up all fields", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("users").document(CurrentUser.user_id).update("firstname", firstname, "lastname", lastname, "email", email).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            CurrentUser.firstname = firstname;
+                            CurrentUser.lastname = lastname;
+                            CurrentUser.email = email;
                             Toast.makeText(getContext(), "Account updated", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "Failed to update account", Toast.LENGTH_SHORT).show();
                         }
-                );
-
+                    });
+                });
+                builder.setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.dismiss();
+                });
+                builder.show();
             }
         });
 
@@ -108,6 +126,7 @@ public class AccountFragment extends Fragment {
                 CurrentUser.user_id = "";
                 CurrentUser.vehicle_type = "";
                 getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Login()).commit();
+                getActivity().findViewById(R.id.bottom_navigation).setVisibility(View.GONE);
             }
         });
 
