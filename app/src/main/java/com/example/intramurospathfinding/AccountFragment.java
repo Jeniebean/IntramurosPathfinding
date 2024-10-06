@@ -65,17 +65,23 @@ public class AccountFragment extends Fragment {
     Button updateAccountButton, logoutButton;
 
 
-    @Override
+
+  @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_account, container, false);
 
-
         updateAccountButton = v.findViewById(R.id.updateAccountButton);
         logoutButton = v.findViewById(R.id.logoutButton);
 
+        setupUpdateAccountButton(inflater);
+        setupLogoutButton();
 
+        return v;
+    }
+
+    private void setupUpdateAccountButton(LayoutInflater inflater) {
         updateAccountButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,28 +92,55 @@ public class AccountFragment extends Fragment {
                 EditText firstnameEditText = view.findViewById(R.id.firstnameEditText);
                 EditText lastnameEditText = view.findViewById(R.id.lastnameEditText);
                 EditText emailEditText = view.findViewById(R.id.emailEditText);
+                EditText passwordEditText = view.findViewById(R.id.passwordEditText);
+                EditText confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText);
+
                 firstnameEditText.setText(CurrentUser.firstname);
                 lastnameEditText.setText(CurrentUser.lastname);
                 emailEditText.setText(CurrentUser.email);
                 builder.setPositiveButton("Update", (dialog, which) -> {
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+
                     String firstname = firstnameEditText.getText().toString();
                     String lastname = lastnameEditText.getText().toString();
                     String email = emailEditText.getText().toString();
+                    String password = passwordEditText.getText().toString();
+                    String confirmPassword = confirmPasswordEditText.getText().toString();
                     if (firstname.isEmpty() || lastname.isEmpty() || email.isEmpty()) {
                         Toast.makeText(getContext(), "Please fill up all fields", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                    db.collection("users").document(CurrentUser.user_id).update("firstname", firstname, "lastname", lastname, "email", email).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            CurrentUser.firstname = firstname;
-                            CurrentUser.lastname = lastname;
-                            CurrentUser.email = email;
-                            Toast.makeText(getContext(), "Account updated", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "Failed to update account", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+
+                    if (!password.equals(confirmPassword)) {
+                        Toast.makeText(getContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    else if (!password.isEmpty() && !confirmPassword.isEmpty()) {
+                        db.collection("users").document(CurrentUser.user_id).update("firstname", firstname, "lastname", lastname, "email", email, "password", password).addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                CurrentUser.firstname = firstname;
+                                CurrentUser.lastname = lastname;
+                                CurrentUser.email = email;
+                                Toast.makeText(getContext(), "Account updated", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), "Failed to update account", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                    else{
+                        db.collection("users").document(CurrentUser.user_id).update("firstname", firstname, "lastname", lastname, "email", email).addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                CurrentUser.firstname = firstname;
+                                CurrentUser.lastname = lastname;
+                                CurrentUser.email = email;
+                                Toast.makeText(getContext(), "Account updated", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), "Failed to update account", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
                 });
                 builder.setNegativeButton("Cancel", (dialog, which) -> {
                     dialog.dismiss();
@@ -115,8 +148,9 @@ public class AccountFragment extends Fragment {
                 builder.show();
             }
         });
+    }
 
-
+    private void setupLogoutButton() {
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,8 +163,5 @@ public class AccountFragment extends Fragment {
                 getActivity().findViewById(R.id.bottom_navigation).setVisibility(View.GONE);
             }
         });
-
-
-        return v;
     }
 }
