@@ -107,7 +107,10 @@ public class History extends Fragment {
                 ride.put("extension", documentSnapshot.get("extension") == null ? "" : documentSnapshot.get("extension") );
                 ride.put("vehicle_type", documentSnapshot.get("vehicle_type") == null ? "" : documentSnapshot.get("vehicle_type") );
                 ride.put("path", documentSnapshot.get("path") == null ? new ArrayList<>() : documentSnapshot.get("path") );
-                ride.put("fare_type", documentSnapshot.get("fare_type") == null ? "" : documentSnapshot.get("fare_type") );
+                ride.put("regular_passenger_quantity", documentSnapshot.get("regular_passenger_quantity") == null ? 0 : documentSnapshot.get("regular_passenger_quantity") );
+                ride.put("student_passenger_quantity", documentSnapshot.get("student_passenger_quantity") == null ? 0 : documentSnapshot.get("student_passenger_quantity") );
+                ride.put("senior_passenger_quantity", documentSnapshot.get("senior_passenger_quantity") == null ? 0 : documentSnapshot.get("senior_passenger_quantity") );
+                ride.put("pwd_passenger_quantity", documentSnapshot.get("pwd_passenger_quantity") == null ? 0 : documentSnapshot.get("pwd_passenger_quantity") );
                 ride.put("ride_title", documentSnapshot.get("ride_title") == null ? "" : documentSnapshot.get("ride_title") );
                 userRides.add(ride);
             }

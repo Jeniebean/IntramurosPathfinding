@@ -135,63 +135,8 @@ public class Maps extends Fragment {
 
 
 
-    /**
-     * Shows a dialog to confirm the start of the ride.
-     * @param path the path of the ride
-     */
-    /**
-     * Shows a dialog to confirm the start of the ride.
-     * @param path the path of the ride
-     */
-    private void showStartRideDialog(List<LatLng> path) {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-        builder.setTitle("Start Ride");
 
-        // Calculate the distance and duration of the ride
-        double distance = Double.parseDouble(selectedPath.get("distance").toString());
-        double duration = Double.parseDouble(selectedPath.get("duration").toString());
 
-        // Format the distance and duration for display
-        String distanceStr = String.format("%.2f km", distance / 1000);
-        String durationStr = String.format("%.2f min", duration / 60000);
-
-        // Include the distance and duration in the dialog message
-        String message = String.format("Are you sure you want to start the ride?\n\nDistance: %s\nEstimated Duration: %s", distanceStr, durationStr);
-        builder.setMessage(message);
-
-        LayoutInflater inflater = getLayoutInflater();
-        fragment_modal  = inflater.inflate(R.layout.fragment_map_modal, null);
-        setupDialogView();
-        builder.setView(fragment_modal);
-        setDialogButtons(builder, path);
-        builder.show();
-    }
-
-    /**
-     * Sets up the view for the dialog.
-     */
-    private void setupDialogView() {
-        MaterialRadioButton regularRadioButton = fragment_modal.findViewById(R.id.regularRadioButton);
-        regularRadioButton.setChecked(true);
-        TextInputEditText passengerQuantityEditText = fragment_modal.findViewById(R.id.passengerQuantityEditText);
-        passengerQuantityEditText.setText("1");
-    }
-
-    /**
-     * Sets the positive and negative buttons for the dialog.
-     * @param builder the MaterialAlertDialogBuilder object
-     * @param path the path of the ride
-     */
-    private void setDialogButtons(MaterialAlertDialogBuilder builder, List<LatLng> path) {
-        builder.setPositiveButton("Yes", (dialog, which) -> {
-            storeRide(path);
-            Toast.makeText(getContext(), "Ride Started", Toast.LENGTH_SHORT).show();
-            clearMap();
-        });
-        builder.setNegativeButton("No", (dialog, which) -> {
-            dialog.dismiss();
-        });
-    }
 
     /**
      * Clears the map.
@@ -334,43 +279,5 @@ public class Maps extends Fragment {
     }
 
 
-    public void storeRide(List<LatLng> path){
-        Map<String, Object> rideDetails = new HashMap<>();
-        rideDetails.put("pointA", pointA.toString());
-        rideDetails.put("pointB", pointB.toString());
-        rideDetails.put("status", "ongoing");
-        rideDetails.put("user", CurrentUser.user_id);
-        rideDetails.put("date_started", System.currentTimeMillis());
-        rideDetails.put("date_ended", null);
-        rideDetails.put("distance", selectedPath.get("distance"));
-        rideDetails.put("duration", selectedPath.get("duration"));
-        rideDetails.put("fare", 0);
-        rideDetails.put("path", path);
-        rideDetails.put("vehicle_type", CurrentUser.vehicle_type);
 
-        RadioGroup radioGroup = fragment_modal.findViewById(R.id.fareTypeGroup);
-        int selectedId = radioGroup.getCheckedRadioButtonId();
-        if (selectedId == R.id.regularRadioButton) {
-            rideDetails.put("fare_type", "regular");
-        }
-        else if (selectedId == R.id.studentRadioButton) {
-            rideDetails.put("fare_type", "student");
-        }
-        else if (selectedId == R.id.pwdRadioButton) {
-            rideDetails.put("fare_type", "pwd");
-
-        }
-        else {
-            rideDetails.put("fare_type", "senior");
-        }
-
-        TextInputEditText passengerQuantityEditText = fragment_modal.findViewById(R.id.passengerQuantityEditText);
-
-
-        rideDetails.put("passenger_quantity", Integer.parseInt(passengerQuantityEditText.getText().toString()));
-        rideDetails.put("extension", 1);
-        db.collection("rides").add(rideDetails);
-
-
-    }
 }

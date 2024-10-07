@@ -5,14 +5,14 @@
     android:layout_height="match_parent"
     >
     <com.google.android.material.textfield.TextInputLayout
-    android:id="@+id/passengerQuantityInputLayout"
+
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="20dp"
     android:hint="Enter quantity of passengers">
 
     <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/passengerQuantityEditText"
+        android:id="@+id/regularPassengerQuantityEditText"
         android:layout_width="match_parent"
         android:layout_marginHorizontal="20dp"
         android:layout_marginVertical="20dp"
@@ -21,39 +21,65 @@
 
 </com.google.android.material.textfield.TextInputLayout>
 
-    <RadioGroup
-        android:id="@+id/fareTypeGroup"
+    <com.google.android.material.textfield.TextInputLayout
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:layout_marginTop="20dp"
+        android:hint="Enter quantity of student passengers">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/studentPassengerQuantityEditText"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="20dp"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 
 
-    <com.google.android.material.radiobutton.MaterialRadioButton
-        android:id="@+id/studentRadioButton"
-        android:layout_width="wrap_content"
+
+    <com.google.android.material.textfield.TextInputLayout
+
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Student" />
+        android:layout_marginTop="20dp"
+        android:hint="Enter quantity of PWD passengers">
 
-    <com.google.android.material.radiobutton.MaterialRadioButton
-        android:id="@+id/pwdRadioButton"
-        android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/pwdPassengerQuantityEditText"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="20dp"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+
+
+    <com.google.android.material.textfield.TextInputLayout
+
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="PWD" />
+        android:layout_marginTop="20dp"
+        android:hint="Enter quantity of senior passengers">
 
-    <com.google.android.material.radiobutton.MaterialRadioButton
-        android:id="@+id/seniorRadioButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Senior" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/seniorPassengerQuantityEditText"
+            android:layout_width="match_parent"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="20dp"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
 
-    <com.google.android.material.radiobutton.MaterialRadioButton
-        android:id="@+id/regularRadioButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Regular" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    </RadioGroup>
+
+
+
 
 </LinearLayout>

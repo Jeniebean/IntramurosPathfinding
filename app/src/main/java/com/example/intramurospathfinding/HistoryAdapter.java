@@ -92,11 +92,14 @@ public class HistoryAdapter extends BaseAdapter {
                         ride.put("fare", documentSnapshot.get("fare"));
                         ride.put("ride_id", documentSnapshot.getId());
                         ride.put("extension", documentSnapshot.get("extension"));
-                        ride.put("passenger_quantity", documentSnapshot.get("passenger_quantity"));
-                        ride.put("fare_type", documentSnapshot.get("fare_type"));
+                        ride.put("regular_passenger_quantity", documentSnapshot.get("regular_passenger_quantity"));
+                        ride.put("student_passenger_quantity", documentSnapshot.get("student_passenger_quantity"));
+                        ride.put("senior_passenger_quantity", documentSnapshot.get("senior_passenger_quantity"));
+                        ride.put("pwd_passenger_quantity", documentSnapshot.get("pwd_passenger_quantity"));
                         ride.put("vehicle_type", documentSnapshot.get("vehicle_type"));
                         ride.put("path", documentSnapshot.get("path"));
                         ride.put("ride_title", documentSnapshot.get("ride_title"));
+
 
                         updatedHistoryList.add(ride);
                     }
@@ -261,7 +264,7 @@ public class HistoryAdapter extends BaseAdapter {
 
         db.collection("rides").document(currentRide.get("ride_id").toString()).update("status", "completed", "date_ended", System.currentTimeMillis(), "duration", computeDuration(currentRide.get("date_started"))).addOnCompleteListener(
                 task -> {
-                    computeFare(currentRide.get("vehicle_type").toString(), currentRide.get("ride_id").toString(), currentRide.get("extension").toString(), currentRide.get("passenger_quantity").toString(), currentRide.get("fare_type").toString());
+                    computeFare(currentRide.get("vehicle_type").toString(), currentRide.get("ride_id").toString(), currentRide.get("extension").toString(), currentRide);
 
                 }
 
@@ -289,26 +292,28 @@ public class HistoryAdapter extends BaseAdapter {
      * @param vehicleType the type of vehicle used for the ride
      * @param ride_id the id of the ride
      * @param extension the extension time for the ride
-     * @param passenger_quantity the number of passengers for the ride
-     * @param fare_type the type of fare for the ride
+
      */
-    public void computeFare(String vehicleType, String ride_id, String extension, String passenger_quantity, String fare_type) {
+    public void computeFare(String vehicleType, String ride_id, String extension, Map<String, Object> history){
         Double BASE_RATE = 0.0;
         Double PER_MINUTE_RATE = 0.0;
+        Double SPECIAL_BASE_RATE = 0.0;
+        Double SPECIAL_PER_MINUTE_RATE = 0.0;
 
-        Double[] rate = computeBaseFare(vehicleType, fare_type);
+        Double[] rate = computeBaseFare(vehicleType);
         BASE_RATE = rate[0];
         PER_MINUTE_RATE = rate[1];
+        SPECIAL_BASE_RATE = rate[2];
+        SPECIAL_PER_MINUTE_RATE = rate[3];
 
-        System.out.println("Base Rate: " + BASE_RATE);
-        System.out.println("Extension: " + extension);
-        System.out.println("Passenger Quantity: " + passenger_quantity);
-        System.out.println("Ride ID: " + ride_id);
+
 
         Map<String, Object> currentRide = new HashMap<>();
         Double finalBASE_RATE = BASE_RATE;
 
         Double finalPER_MINUTE_RATE = PER_MINUTE_RATE;
+        Double finalSPECIAL_BASE_RATE = SPECIAL_BASE_RATE;
+        Double finalSPECIAL_PER_MINUTE_RATE = SPECIAL_PER_MINUTE_RATE;
         db.collection("rides").document(ride_id).get().addOnSuccessListener(documentSnapshot -> {
             currentRide.put("date_started", documentSnapshot.get("date_started"));
             currentRide.put("date_ended", documentSnapshot.get("date_ended"));
@@ -316,7 +321,7 @@ public class HistoryAdapter extends BaseAdapter {
             double endTime = Double.parseDouble(currentRide.get("date_ended").toString());
             double duration = endTime - startTime;
             double durationInMinutes = duration / 60000;
-            double fare = calculateFare(finalBASE_RATE, finalPER_MINUTE_RATE, extension, passenger_quantity, durationInMinutes);
+            double fare = calculateFare(finalBASE_RATE, finalPER_MINUTE_RATE, finalSPECIAL_BASE_RATE, finalSPECIAL_PER_MINUTE_RATE, extension, currentRide.get("regular_passenger_quantity").toString(), currentRide.get("student_passenger_quantity").toString(),currentRide.get("senior_passenger_quantity").toString(), currentRide.get("pwd_passenger_quantity").toString(),  durationInMinutes);
             System.out.println("Fare: " + fare);
             db.collection("rides").document(ride_id).update("fare", fare).addOnCompleteListener(task -> {
                 db.collection("rides").document(ride_id).update("duration", durationInMinutes).addOnCompleteListener(t -> {
@@ -329,43 +334,41 @@ public class HistoryAdapter extends BaseAdapter {
     }
 
 
-    public static Double[] computeBaseFare(String vehicleType, String fare_type){
+    public static Double[] computeBaseFare(String vehicleType){
         Double BASE_RATE = 0.0;
         Double PER_MINUTE_RATE = 0.0;
+        Double SPECIAL_BASE_RATE = 0.0;
+        Double SPECIAL_PER_MINUTE_RATE = 0.0;
         if (vehicleType.equalsIgnoreCase("kalesa")) {
             System.out.println("Kalesa");
-            if (fare_type.equalsIgnoreCase("regular")) {
                 BASE_RATE = 1000.0;
                 PER_MINUTE_RATE = BASE_RATE / 60;
-            } else if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior") || fare_type.equalsIgnoreCase("pwd")) {
-                BASE_RATE = 800.0;
-                PER_MINUTE_RATE = BASE_RATE / 60;
-            }
+
+                SPECIAL_BASE_RATE = 800.0;
+                SPECIAL_PER_MINUTE_RATE = SPECIAL_BASE_RATE / 60;
 
         } else if (vehicleType.equalsIgnoreCase("pedicab")) {
             System.out.println("Pedicab");
 
-            if (fare_type.equalsIgnoreCase("regular")) {
                 BASE_RATE = 400.0;
                 PER_MINUTE_RATE = BASE_RATE / 60;
-            } else if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior") || fare_type.equalsIgnoreCase("pwd")) {
-                BASE_RATE = 320.0;
-                PER_MINUTE_RATE = BASE_RATE / 60;
-            }
+
+                SPECIAL_BASE_RATE = 320.0;
+                SPECIAL_PER_MINUTE_RATE = SPECIAL_BASE_RATE / 60;
+
 
         } else if (vehicleType.equalsIgnoreCase("tricycle")) {
             System.out.println("Tricycle");
-            if (fare_type.equalsIgnoreCase("regular")) {
+
                 BASE_RATE = 200.0;
                 PER_MINUTE_RATE = BASE_RATE / 30;
-            } else if (fare_type.equalsIgnoreCase("student") || fare_type.equalsIgnoreCase("senior") || fare_type.equalsIgnoreCase("pwd")) {
-                BASE_RATE = 120.0;
-                PER_MINUTE_RATE = BASE_RATE / 30;
-            }
+
+                SPECIAL_BASE_RATE = 120.0;
+                SPECIAL_PER_MINUTE_RATE = SPECIAL_BASE_RATE / 30;
 
         }
 
-        return new Double[]{BASE_RATE, PER_MINUTE_RATE};
+        return new Double[]{BASE_RATE, PER_MINUTE_RATE, SPECIAL_BASE_RATE, SPECIAL_PER_MINUTE_RATE};
 
     }
     /**
@@ -373,12 +376,11 @@ public class HistoryAdapter extends BaseAdapter {
      *
      * @param BASE_RATE the base rate for the ride
      * @param PER_MINUTE_RATE the per minute rate for the ride
-     * @param extension the extension time for the ride
-     * @param passenger_quantity the number of passengers for the ride
+   =
      * @param durationInMinutes the duration of the ride in minutes
      * @return the calculated fare
      */
-    public static double calculateFare(Double BASE_RATE, Double PER_MINUTE_RATE, String extension, String passenger_quantity, double durationInMinutes) {
+    public static double calculateFare(Double BASE_RATE, Double PER_MINUTE_RATE, Double SEPCIAL_BASE_RATE, Double SPECIAL_PER_MINUTE_RATE, String extension, String regular_passenger_quantity, String student_passenger_quantity, String senior_passenger_quantity, String pwd_passenger_quantity, double durationInMinutes) {
 
         double timeElapsed = 0;
 
@@ -387,12 +389,7 @@ public class HistoryAdapter extends BaseAdapter {
         double fare = 0;
 
 
-        System.out.println("Duration in minutes: " + durationInMinutes);
-        System.out.println("Extension: " + extension);
-        System.out.println("Passenger Quantity: " + passenger_quantity);
-        System.out.println("Base Rate: " + BASE_RATE);
-        System.out.println("Per Minute Rate: " + PER_MINUTE_RATE);
-        System.out.println("Vehicle Type: " + CurrentUser.vehicle_type);
+
         if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa") || CurrentUser.vehicle_type.equalsIgnoreCase("pedicab")){
             timeElapsed = durationInMinutes - (60 * Double.parseDouble(extension));
 
@@ -402,10 +399,12 @@ public class HistoryAdapter extends BaseAdapter {
         }
 
         if (timeElapsed > 0){
-            fare = ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(passenger_quantity);
+
+            fare = ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(regular_passenger_quantity) + ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(student_passenger_quantity) + ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(senior_passenger_quantity) + ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(pwd_passenger_quantity);
+
         }
         else{
-            fare = BASE_RATE * Double.parseDouble(passenger_quantity);
+            fare = BASE_RATE * Double.parseDouble(regular_passenger_quantity) + BASE_RATE * Double.parseDouble(student_passenger_quantity) + BASE_RATE * Double.parseDouble(senior_passenger_quantity) + BASE_RATE * Double.parseDouble(pwd_passenger_quantity);
         }
 
 

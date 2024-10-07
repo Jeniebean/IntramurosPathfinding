@@ -107,26 +107,16 @@ public class RouteListPreviewMap extends Fragment {
         rideDetails.put("path", path);
         rideDetails.put("vehicle_type", CurrentUser.vehicle_type);
 
-        RadioGroup radioGroup = fragment_modal.findViewById(R.id.fareTypeGroup);
-        int selectedId = radioGroup.getCheckedRadioButtonId();
-        if (selectedId == R.id.regularRadioButton) {
-            rideDetails.put("fare_type", "regular");
-        }
-        else if (selectedId == R.id.studentRadioButton) {
-            rideDetails.put("fare_type", "student");
-        }
-        else if (selectedId == R.id.pwdRadioButton) {
-            rideDetails.put("fare_type", "pwd");
-
-        }
-        else {
-            rideDetails.put("fare_type", "senior");
-        }
-
-        TextInputEditText passengerQuantityEditText = fragment_modal.findViewById(R.id.passengerQuantityEditText);
+        TextInputEditText regularPassengerQuantityEditText = fragment_modal.findViewById(R.id.regularPassengerQuantityEditText);
+        TextInputEditText studentPassengerQuantityEditText = fragment_modal.findViewById(R.id.studentPassengerQuantityEditText);
+        TextInputEditText seniorPassengerQuantityEditText = fragment_modal.findViewById(R.id.seniorPassengerQuantityEditText);
+        TextInputEditText pwdPassengerQuantityEditText = fragment_modal.findViewById(R.id.pwdPassengerQuantityEditText);
 
 
-        rideDetails.put("passenger_quantity", Integer.parseInt(passengerQuantityEditText.getText().toString()));
+        rideDetails.put("regular_passenger_quantity", Integer.parseInt(regularPassengerQuantityEditText.getText().toString()));
+        rideDetails.put("student_passenger_quantity", Integer.parseInt(studentPassengerQuantityEditText.getText().toString()));
+        rideDetails.put("senior_passenger_quantity", Integer.parseInt(seniorPassengerQuantityEditText.getText().toString()));
+        rideDetails.put("pwd_passenger_quantity", Integer.parseInt(pwdPassengerQuantityEditText.getText().toString()));
         rideDetails.put("extension", 0);
         rideDetails.put("ride_title", rideTitle);
         db.collection("rides").add(rideDetails);
@@ -142,10 +132,17 @@ public class RouteListPreviewMap extends Fragment {
      * Sets up the view for the dialog.
      */
     private void setupDialogView() {
-        MaterialRadioButton regularRadioButton = fragment_modal.findViewById(R.id.regularRadioButton);
-        regularRadioButton.setChecked(true);
-        TextInputEditText passengerQuantityEditText = fragment_modal.findViewById(R.id.passengerQuantityEditText);
-        passengerQuantityEditText.setText("1");
+        TextInputEditText regularPassengerQuantityEditText = fragment_modal.findViewById(R.id.regularPassengerQuantityEditText);
+        TextInputEditText studentPassengerQuantityEditText = fragment_modal.findViewById(R.id.studentPassengerQuantityEditText);
+        TextInputEditText seniorPassengerQuantityEditText = fragment_modal.findViewById(R.id.seniorPassengerQuantityEditText);
+        TextInputEditText pwdPassengerQuantityEditText = fragment_modal.findViewById(R.id.pwdPassengerQuantityEditText);
+
+        regularPassengerQuantityEditText.setText("0");
+        studentPassengerQuantityEditText.setText("0");
+        seniorPassengerQuantityEditText.setText("0");
+        pwdPassengerQuantityEditText.setText("0");
+
+
     }
 
     /**
