@@ -209,8 +209,13 @@ public class HistoryAdapter extends BaseAdapter {
             public void run() {
                 double remainingTimeInMinutes = calculateRemainingTimeInMinutes(history, startTime);
                 if(remainingTimeInMinutes <= 0) {
-                    // TODO: Automatic Extension
+                    extendRide(history);
                 }
+                else if (Integer.parseInt(history.get("extension").toString()) >= 1) {
+                    // add how many times the extension is
+                    historyEndTime.setText("End Time: " + remainingTimeInMinutes + " minutes remaining " + " (Extended) " + history.get("extension").toString() + "x");
+                }
+
                 else {
                     historyEndTime.setText("End Time: " + remainingTimeInMinutes + " minutes remaining");
                 }
@@ -232,14 +237,15 @@ public class HistoryAdapter extends BaseAdapter {
      */
     private double calculateRemainingTimeInMinutes(Map<String, Object> history, Date startTime) {
         Date currentTime = new Date();
-        long timeDifference = currentTime.getTime() - startTime.getTime();
+        // every extension is 10 minutes
+        int extension = Integer.parseInt(history.get("extension").toString());
+        long timeDifference = (currentTime.getTime() - startTime.getTime()) + (extension * 600000);
         long timeDifferenceInMinutes = timeDifference / 60000;
 
-        double extension = history.get("extension") == null ? 1 : Double.parseDouble(history.get("extension").toString());
         if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")) {
-            return 60 * extension - timeDifferenceInMinutes;
+            return 60  - timeDifferenceInMinutes;
         } else {
-            return 30 * extension - timeDifferenceInMinutes;
+            return 30  - timeDifferenceInMinutes;
         }
     }
 
@@ -434,6 +440,7 @@ public class HistoryAdapter extends BaseAdapter {
         TextView dateEnded = ((MainActivity) context).findViewById(R.id.dateEnded);
         TextView distance = ((MainActivity) context).findViewById(R.id.distance);
         TextView fare = ((MainActivity) context).findViewById(R.id.fare);
+        TextView status = ((MainActivity) context).findViewById(R.id.status);
         FragmentContainerView previewRideMap = ((MainActivity) context).findViewById(R.id.previewRideMap);
 
         dateStarted.setCompoundDrawables(dateDrawable, null, null, null);
@@ -451,6 +458,8 @@ public class HistoryAdapter extends BaseAdapter {
         String fareFormatted = String.format("%.2f", fareValue);
         fare.setCompoundDrawables(fareDrawable, null, null, null);
         fare.setText(fareFormatted + " PHP");
+
+        status.setText("Status: " + currentRide.get("status").toString());
 
         // Show the preview map
 

@@ -124,7 +124,7 @@ public class RouteListPreviewMap extends Fragment {
 
 
         rideDetails.put("passenger_quantity", Integer.parseInt(passengerQuantityEditText.getText().toString()));
-        rideDetails.put("extension", 1);
+        rideDetails.put("extension", 0);
         db.collection("rides").add(rideDetails);
 
 
