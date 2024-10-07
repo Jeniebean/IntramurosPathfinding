@@ -37,6 +37,7 @@ public class RouteListPreviewMap extends Fragment {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     LatLng pointA, pointB;
     String path;
+    String rideTitle;
     ArrayList<LatLng> points;
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -52,6 +53,8 @@ public class RouteListPreviewMap extends Fragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             bundle = getArguments();
+
+            rideTitle = bundle.getString("title");
 
             LatLng origin = new LatLng(bundle.getDouble("originLatitude"), bundle.getDouble("originLongitude"));
             pointA = origin;
@@ -125,6 +128,7 @@ public class RouteListPreviewMap extends Fragment {
 
         rideDetails.put("passenger_quantity", Integer.parseInt(passengerQuantityEditText.getText().toString()));
         rideDetails.put("extension", 0);
+        rideDetails.put("ride_title", rideTitle);
         db.collection("rides").add(rideDetails);
 
 

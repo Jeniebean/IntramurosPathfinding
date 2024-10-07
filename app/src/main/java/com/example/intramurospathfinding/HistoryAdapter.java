@@ -96,7 +96,7 @@ public class HistoryAdapter extends BaseAdapter {
                         ride.put("fare_type", documentSnapshot.get("fare_type"));
                         ride.put("vehicle_type", documentSnapshot.get("vehicle_type"));
                         ride.put("path", documentSnapshot.get("path"));
-
+                        ride.put("ride_title", documentSnapshot.get("ride_title"));
 
                         updatedHistoryList.add(ride);
                     }
@@ -136,7 +136,7 @@ public class HistoryAdapter extends BaseAdapter {
         TextView historyStartTime = convertView.findViewById(R.id.historyStartTime);
         TextView historyEndTime = convertView.findViewById(R.id.historyEndTime);
 
-        textView.setText("Ride #" + history.get("ride_id"));
+        textView.setText(history.get("ride_title").toString());
 
         String date_started = formatDate(history.get("date_started").toString());
         historyStartTime.setText("Start Time: " + date_started);
@@ -162,12 +162,11 @@ public class HistoryAdapter extends BaseAdapter {
         return formatter.format(date);
     }
 
-    /**
-     * Setup the buttons for the history item.
-     *
-     * @param convertView the view to setup
-     * @param history the history item data
-     */
+
+
+
+
+
     private void setupButtons(View convertView, Map<String, Object> history) {
         viewRideBtn = convertView.findViewById(R.id.historyViewRideBtn);
         endRideBtn = convertView.findViewById(R.id.historyEndRideBtn);
@@ -249,20 +248,8 @@ public class HistoryAdapter extends BaseAdapter {
         }
     }
 
-    /**
-     * Show the extend ride button.
-     *
-     * @param history the history item data
-     * @param historyEndTime the text view to update
-     * @param extendRideBtn the button to show
-     */
 
-    private void showExtendRideButton(Map<String, Object> history, TextView historyEndTime, Button extendRideBtn){
 
-        extendRideBtn.setVisibility(View.VISIBLE);
-        extendRideBtn.setOnClickListener(v -> extendRide(history));
-        historyEndTime.setText("End Time: 0 minutes remaining");
-    }
 
 
     /**
@@ -272,7 +259,7 @@ public class HistoryAdapter extends BaseAdapter {
      */
     public void endRide(Map<String, Object> currentRide){
 
-        db.collection("rides").document(currentRide.get("ride_id").toString()).update("status", "completed", "date_ended", System.currentTimeMillis()).addOnCompleteListener(
+        db.collection("rides").document(currentRide.get("ride_id").toString()).update("status", "completed", "date_ended", System.currentTimeMillis(), "duration", computeDuration(currentRide.get("date_started"))).addOnCompleteListener(
                 task -> {
                     computeFare(currentRide.get("vehicle_type").toString(), currentRide.get("ride_id").toString(), currentRide.get("extension").toString(), currentRide.get("passenger_quantity").toString(), currentRide.get("fare_type").toString());
 
@@ -285,6 +272,13 @@ public class HistoryAdapter extends BaseAdapter {
 
         // Refresh the history list
 
+    }
+
+    public long computeDuration(Object date_started){
+        long startTime = Long.parseLong(date_started.toString());
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        return duration;
     }
 
 
@@ -441,6 +435,13 @@ public class HistoryAdapter extends BaseAdapter {
         TextView distance = ((MainActivity) context).findViewById(R.id.distance);
         TextView fare = ((MainActivity) context).findViewById(R.id.fare);
         TextView status = ((MainActivity) context).findViewById(R.id.status);
+        TextView passengerType = ((MainActivity) context).findViewById(R.id.passengerType);
+        TextView passengerQuantity = ((MainActivity) context).findViewById(R.id.passengerQuantity);
+        TextView duration = ((MainActivity) context).findViewById(R.id.duration);
+
+
+
+
         FragmentContainerView previewRideMap = ((MainActivity) context).findViewById(R.id.previewRideMap);
 
         dateStarted.setCompoundDrawables(dateDrawable, null, null, null);
@@ -460,6 +461,45 @@ public class HistoryAdapter extends BaseAdapter {
         fare.setText(fareFormatted + " PHP");
 
         status.setText("Status: " + currentRide.get("status").toString());
+
+
+        if (currentRide.get("status").toString().equalsIgnoreCase("completed")) {
+            passengerType.setText("Fare Type: " + currentRide.get("fare_type").toString());
+            passengerQuantity.setText("Passenger Quantity: " + currentRide.get("passenger_quantity").toString());
+            String rideDuration = currentRide.get("duration").toString();
+            // convert rideduration to 2 decimal places
+            Double rideDurationDouble;
+            String rideDurationString;
+            if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")) {
+                 rideDurationDouble = Double.parseDouble(rideDuration);
+                 if(rideDurationDouble - 60 > 0){
+                     Double rideDurationElapsed = rideDurationDouble - 60;
+                     rideDurationString = String.format("%.2f", rideDurationDouble) + "minutes + " + String.format("%.2f", rideDurationElapsed) + " minutes (Elapsed)";
+                 }
+                 else{
+                     rideDurationString = String.format("%.2f", rideDurationDouble);
+                 }
+
+                duration.setText("Duration: " + rideDurationString);
+            } else {
+                rideDurationDouble = Double.parseDouble(rideDuration);
+                if(rideDurationDouble - 60 > 0){
+                    Double rideDurationElapsed = rideDurationDouble - 30;
+                    rideDurationString = String.format("%.2f", rideDurationDouble) + "minutes + " + String.format("%.2f", rideDurationElapsed) + " minutes (Elapsed)";
+                }
+                else{
+                    rideDurationString = String.format("%.2f", rideDurationDouble);
+                }
+
+                duration.setText("Duration: " + rideDurationString + " minutes");
+            }
+
+        } else {
+            passengerType.setVisibility(View.GONE);
+            passengerQuantity.setVisibility(View.GONE);
+            duration.setVisibility(View.GONE);
+
+        }
 
         // Show the preview map
 

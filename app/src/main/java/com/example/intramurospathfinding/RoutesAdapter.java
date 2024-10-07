@@ -142,9 +142,20 @@ public class RoutesAdapter extends BaseAdapter {
 
         HashMap<String, Object> firstInstruction = instructionsList.get(1);
         HashMap<String, Object> lastInstruction = instructionsList.get(instructionsList.size() - 2);
-
-        rideName.setText(firstInstruction.get("street_name") + " to " + lastInstruction.get("street_name"));
+        String rideTitle = firstInstruction.get("street_name") + " to " + lastInstruction.get("street_name");
+        rideName.setText(rideTitle);
     }
+
+    private String getRideTitle(List<HashMap<String, Object>> instructionsList) {
+
+        HashMap<String, Object> firstInstruction = instructionsList.get(1);
+        HashMap<String, Object> lastInstruction = instructionsList.get(instructionsList.size() - 2);
+
+        return firstInstruction.get("street_name") + " to " + lastInstruction.get("street_name");
+    }
+
+
+
 
     private void setupGoButton(View convertView, HashMap<String, Object> routeOption) {
         Button goBtn = convertView.findViewById(R.id.goBtn);
@@ -161,6 +172,7 @@ public class RoutesAdapter extends BaseAdapter {
                 bundle.putDouble("destinationLongitude", destination.longitude);
                 bundle.putString("distance", routeOption.get("distance").toString());
                 bundle.putString("duration", routeOption.get("duration").toString());
+                bundle.putString("title", getRideTitle(convertInstructions(routeOption)));
                 fragment.setArguments(bundle);
                 FragmentManager fragmentManager = ((MainActivity) context).getSupportFragmentManager();
                 fragmentManager.beginTransaction().addToBackStack(null).replace(R.id.fragment_container, fragment).commit();

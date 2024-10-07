@@ -108,7 +108,7 @@ public class History extends Fragment {
                 ride.put("vehicle_type", documentSnapshot.get("vehicle_type") == null ? "" : documentSnapshot.get("vehicle_type") );
                 ride.put("path", documentSnapshot.get("path") == null ? new ArrayList<>() : documentSnapshot.get("path") );
                 ride.put("fare_type", documentSnapshot.get("fare_type") == null ? "" : documentSnapshot.get("fare_type") );
-
+                ride.put("ride_title", documentSnapshot.get("ride_title") == null ? "" : documentSnapshot.get("ride_title") );
                 userRides.add(ride);
             }
             HistoryAdapter historyAdapter = new HistoryAdapter(v.getContext(), userRides);
