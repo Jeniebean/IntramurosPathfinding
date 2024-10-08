@@ -484,7 +484,7 @@ public class HistoryAdapter extends BaseAdapter {
             if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")) {
                  rideDurationDouble = Double.parseDouble(rideDuration);
                  if(rideDurationDouble - 60 > 0){
-                     Double rideDurationElapsed = rideDurationDouble - 60;
+                     Double rideDurationElapsed = (rideDurationDouble - 60) / 6000;
                      rideDurationString = String.format("%.2f", rideDurationDouble) + "minutes + " + String.format("%.2f", rideDurationElapsed) + " minutes (Elapsed)";
                  }
                  else{
@@ -501,7 +501,7 @@ public class HistoryAdapter extends BaseAdapter {
             } else {
                 rideDurationDouble = Double.parseDouble(rideDuration);
                 if(rideDurationDouble - 60 > 0){
-                    Double rideDurationElapsed = rideDurationDouble - 30;
+                    Double rideDurationElapsed = (rideDurationDouble - 30) / 6000;
                     rideDurationString = String.format("%.2f", rideDurationDouble) + "minutes + " + String.format("%.2f", rideDurationElapsed) + " minutes (Elapsed)";
                 }
                 else{
