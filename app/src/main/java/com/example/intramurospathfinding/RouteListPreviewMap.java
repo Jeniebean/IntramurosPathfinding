@@ -27,6 +27,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,23 @@ public class RouteListPreviewMap extends Fragment {
     String path;
     String rideTitle;
     ArrayList<LatLng> points;
+    List<LatLng> wallPoints = Arrays.asList(
+            new LatLng(14.5914852, 120.9718346),
+            new LatLng(14.5915014, 120.9718507),
+            new LatLng(14.5914102, 120.9719205),
+            new LatLng(14.5913398, 120.9719614),
+            new LatLng(14.5913151, 120.9719286),
+            new LatLng(14.5909806, 120.9721463),
+            new LatLng(14.5909535, 120.9721626),
+            new LatLng(14.5899076, 120.9727895),
+            new LatLng(14.5897004, 120.9726477),
+            new LatLng(14.5895774, 120.9726763),
+            new LatLng(14.5893044, 120.9727397),
+            new LatLng(14.5891995, 120.9728619),
+            new LatLng(14.5891026, 120.9729774),
+            new LatLng(14.5891609, 120.9732701)
+
+    );
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         /**
@@ -63,7 +81,7 @@ public class RouteListPreviewMap extends Fragment {
             googleMap.addMarker(new MarkerOptions().position(origin).title("Origin"));
             googleMap.addMarker(new MarkerOptions().position(destination).title("Destination"));
             // move to marker and zoom 15
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(origin, 16));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(origin, 17));
 
             path = bundle.getString("path");
             String[] latLngStrings = path.split(", lat/lng: "); // Split the string into individual LatLng strings
@@ -82,15 +100,30 @@ public class RouteListPreviewMap extends Fragment {
                 points.add(latLng);
             }
 
+
+
             for (int i = 0; i < points.size() - 1; i++) {
                 LatLng pointA = points.get(i);
                 LatLng pointB = points.get(i + 1);
-                googleMap.addPolyline(new PolylineOptions().add(pointA, pointB).width(5).color(Color.RED));
+                int color = isOnWall(pointA) || isOnWall(pointB) ? Color.BLUE : Color.RED;
+                googleMap.addPolyline(new PolylineOptions().add(pointA, pointB).width(5).color(color));
             }
 
         }
     };
 
+
+    // Check if a given LatLng point is on the wall
+    private boolean isOnWall(LatLng point) {
+        final double TOLERANCE = 0.0001; // Adjust this value based on how close to the wall a point needs to be to be considered "on" the wall
+        for (LatLng wallPoint : wallPoints) {
+            double distance = Math.sqrt(Math.pow(wallPoint.latitude - point.latitude, 2) + Math.pow(wallPoint.longitude - point.longitude, 2));
+            if (distance < TOLERANCE) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     public void storeRide(List<LatLng> path){

@@ -28,11 +28,9 @@ import java.util.List;
 public class RoutesAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<HashMap<String, Object>> historyList; // replace String with your actual data type // replace String with your actual data type
+    private ArrayList<HashMap<String, Object>> historyList;
     private LayoutInflater inflater;
     LatLng origin, destination;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    Button extendRideBtn, endRideBtn, viewRideBtn;
 
     public RoutesAdapter(Context context, ArrayList<HashMap<String, Object>> historyList, LatLng origin, LatLng destination) {
         this.context = context;
@@ -42,6 +40,9 @@ public class RoutesAdapter extends BaseAdapter {
         this.destination = destination;
 
     }
+
+
+
 
     @Override
     public int getCount() {
@@ -73,11 +74,15 @@ public class RoutesAdapter extends BaseAdapter {
 
 
 
+
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = inflateView();
         }
+
+
 
         HashMap<String, Object> routeOption = getRouteOption(position);
 
@@ -185,7 +190,7 @@ public class RoutesAdapter extends BaseAdapter {
          * @return the inflated view
          */
         private View inflateView() {
-            return inflater.inflate(R.layout.fragment_routes_adapter, null);
+            return inflater.inflate(R.layout.fragment_routes_adapter, null, false);
         }
 
 

@@ -87,8 +87,25 @@ public class routes extends Fragment {
         Bundle bundle = getArguments();
 
 
-        System.out.println("JSON RESPONSE: " + jsonResponse);
 
+
+        RoutesAdapter routesAdapter = new RoutesAdapter(v.getContext(), routesList, origin, destination);
+        routes_list.setAdapter(routesAdapter);
+
+        return v;
+    }
+
+  @Override
+  // on start
+    public void onStart() {
+      System.out.println("on start");
+        super.onStart();
+        routesList.clear();
+        populateRoutes();
+  }
+
+
+    public void populateRoutes () {
         try {
             JSONObject jsonResponseObject = new JSONObject(jsonResponse);
             JSONArray pathsArray = jsonResponseObject.getJSONArray("paths");
@@ -113,16 +130,7 @@ public class routes extends Fragment {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-
-        System.out.println("ROUTES LIST: " + routesList);
-
-
-        RoutesAdapter routesAdapter = new RoutesAdapter(v.getContext(), routesList, origin, destination);
-        routes_list.setAdapter(routesAdapter);
-
-        return v;
     }
-
 
     private List<LatLng> decodePolyline(String encoded) {
         List<LatLng> poly = new ArrayList<>();

@@ -92,11 +92,21 @@
                                   android:layout_marginStart="10dp"
                                   android:drawablePadding="10dp"/>
 
+
+
                               <TextView
-                                  android:id="@+id/passengerType"
+                                  android:id="@+id/regularPassengerQuantity"
                                   android:layout_width="match_parent"
                                   android:layout_height="wrap_content"
-                                  android:text="Passenger Type: "
+                                  android:textSize="20sp"
+                                  android:layout_margin="5dp"
+                                  android:layout_marginStart="10dp"
+                                  android:drawablePadding="10dp"/>
+
+                              <TextView
+                                  android:id="@+id/studentPassengerQuantity"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
                                   android:textSize="20sp"
                                   android:layout_margin="5dp"
                                   android:layout_marginStart="10dp"
@@ -104,14 +114,25 @@
 
 
                               <TextView
-                                  android:id="@+id/passengerQuantity"
+                                  android:id="@+id/seniorPassengerQuantity"
                                   android:layout_width="match_parent"
                                   android:layout_height="wrap_content"
-                                  android:text="Passenger Quantity: "
                                   android:textSize="20sp"
                                   android:layout_margin="5dp"
                                   android:layout_marginStart="10dp"
                                   android:drawablePadding="10dp"/>
+
+
+                              <TextView
+                                  android:id="@+id/pwdPassengerQuantity"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:textSize="20sp"
+                                  android:layout_margin="5dp"
+                                  android:layout_marginStart="10dp"
+                                  android:drawablePadding="10dp"/>
+
+
 
 
 

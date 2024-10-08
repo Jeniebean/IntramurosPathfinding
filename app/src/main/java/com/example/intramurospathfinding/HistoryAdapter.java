@@ -321,7 +321,7 @@ public class HistoryAdapter extends BaseAdapter {
             double endTime = Double.parseDouble(currentRide.get("date_ended").toString());
             double duration = endTime - startTime;
             double durationInMinutes = duration / 60000;
-            double fare = calculateFare(finalBASE_RATE, finalPER_MINUTE_RATE, finalSPECIAL_BASE_RATE, finalSPECIAL_PER_MINUTE_RATE, extension, currentRide.get("regular_passenger_quantity").toString(), currentRide.get("student_passenger_quantity").toString(),currentRide.get("senior_passenger_quantity").toString(), currentRide.get("pwd_passenger_quantity").toString(),  durationInMinutes);
+            double fare = calculateFare(finalBASE_RATE, finalPER_MINUTE_RATE, finalSPECIAL_BASE_RATE, finalSPECIAL_PER_MINUTE_RATE, extension, history.get("regular_passenger_quantity").toString(), history.get("student_passenger_quantity").toString(),history.get("senior_passenger_quantity").toString(), history.get("pwd_passenger_quantity").toString(),  durationInMinutes);
             System.out.println("Fare: " + fare);
             db.collection("rides").document(ride_id).update("fare", fare).addOnCompleteListener(task -> {
                 db.collection("rides").document(ride_id).update("duration", durationInMinutes).addOnCompleteListener(t -> {
@@ -380,7 +380,7 @@ public class HistoryAdapter extends BaseAdapter {
      * @param durationInMinutes the duration of the ride in minutes
      * @return the calculated fare
      */
-    public static double calculateFare(Double BASE_RATE, Double PER_MINUTE_RATE, Double SEPCIAL_BASE_RATE, Double SPECIAL_PER_MINUTE_RATE, String extension, String regular_passenger_quantity, String student_passenger_quantity, String senior_passenger_quantity, String pwd_passenger_quantity, double durationInMinutes) {
+    public static double calculateFare(Double BASE_RATE, Double PER_MINUTE_RATE, Double SPECIAL_BASE_RATE, Double SPECIAL_PER_MINUTE_RATE, String extension, String regular_passenger_quantity, String student_passenger_quantity, String senior_passenger_quantity, String pwd_passenger_quantity, double durationInMinutes) {
 
         double timeElapsed = 0;
 
@@ -391,20 +391,30 @@ public class HistoryAdapter extends BaseAdapter {
 
 
         if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa") || CurrentUser.vehicle_type.equalsIgnoreCase("pedicab")){
-            timeElapsed = durationInMinutes - (60 * Double.parseDouble(extension));
+            if (Double.parseDouble(extension) >= 1)
+                timeElapsed = durationInMinutes - (60 * Double.parseDouble(extension));
+            else {
+                timeElapsed = durationInMinutes  - 60;
+            }
+
 
         }
         else {
-            timeElapsed = durationInMinutes - (30 * Double.parseDouble(extension));
+            if (Double.parseDouble(extension) >= 1)
+                timeElapsed = durationInMinutes - (30 * Double.parseDouble(extension));
+            else {
+                timeElapsed = durationInMinutes  - 30;
+            }
+
         }
 
         if (timeElapsed > 0){
 
-            fare = ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(regular_passenger_quantity) + ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(student_passenger_quantity) + ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(senior_passenger_quantity) + ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(pwd_passenger_quantity);
+            fare = ( BASE_RATE + (timeElapsed * PER_MINUTE_RATE) ) * Double.parseDouble(regular_passenger_quantity) + ( SPECIAL_BASE_RATE + (timeElapsed * SPECIAL_PER_MINUTE_RATE) ) * Double.parseDouble(student_passenger_quantity) + ( SPECIAL_BASE_RATE + (timeElapsed * SPECIAL_PER_MINUTE_RATE) ) * Double.parseDouble(senior_passenger_quantity) + ( SPECIAL_BASE_RATE + (timeElapsed * SPECIAL_PER_MINUTE_RATE) ) * Double.parseDouble(pwd_passenger_quantity);
 
         }
         else{
-            fare = BASE_RATE * Double.parseDouble(regular_passenger_quantity) + BASE_RATE * Double.parseDouble(student_passenger_quantity) + BASE_RATE * Double.parseDouble(senior_passenger_quantity) + BASE_RATE * Double.parseDouble(pwd_passenger_quantity);
+            fare = BASE_RATE * Double.parseDouble(regular_passenger_quantity) + SPECIAL_BASE_RATE * Double.parseDouble(student_passenger_quantity) + SPECIAL_BASE_RATE * Double.parseDouble(senior_passenger_quantity) + SPECIAL_BASE_RATE * Double.parseDouble(pwd_passenger_quantity);
         }
 
 
@@ -434,8 +444,11 @@ public class HistoryAdapter extends BaseAdapter {
         TextView distance = ((MainActivity) context).findViewById(R.id.distance);
         TextView fare = ((MainActivity) context).findViewById(R.id.fare);
         TextView status = ((MainActivity) context).findViewById(R.id.status);
-        TextView passengerType = ((MainActivity) context).findViewById(R.id.passengerType);
-        TextView passengerQuantity = ((MainActivity) context).findViewById(R.id.passengerQuantity);
+        TextView regularPassengerQuantity = ((MainActivity) context).findViewById(R.id.regularPassengerQuantity);
+        TextView studentPassengerQuantity = ((MainActivity) context).findViewById(R.id.studentPassengerQuantity);
+        TextView seniorPassengerQuantity = ((MainActivity) context).findViewById(R.id.seniorPassengerQuantity);
+        TextView pwdPassengerQuantity = ((MainActivity) context).findViewById(R.id.pwdPassengerQuantity);
+
         TextView duration = ((MainActivity) context).findViewById(R.id.duration);
 
 
@@ -463,10 +476,9 @@ public class HistoryAdapter extends BaseAdapter {
 
 
         if (currentRide.get("status").toString().equalsIgnoreCase("completed")) {
-            passengerType.setText("Fare Type: " + currentRide.get("fare_type").toString());
-            passengerQuantity.setText("Passenger Quantity: " + currentRide.get("passenger_quantity").toString());
+
+
             String rideDuration = currentRide.get("duration").toString();
-            // convert rideduration to 2 decimal places
             Double rideDurationDouble;
             String rideDurationString;
             if (CurrentUser.vehicle_type.equalsIgnoreCase("kalesa")) {
@@ -479,7 +491,13 @@ public class HistoryAdapter extends BaseAdapter {
                      rideDurationString = String.format("%.2f", rideDurationDouble);
                  }
 
-                duration.setText("Duration: " + rideDurationString);
+                regularPassengerQuantity.setText("Regular: " + currentRide.get("regular_passenger_quantity").toString());
+                studentPassengerQuantity.setText("Student: " + currentRide.get("student_passenger_quantity").toString());
+                seniorPassengerQuantity.setText("Senior: " + currentRide.get("senior_passenger_quantity").toString());
+                pwdPassengerQuantity.setText("PWD: " + currentRide.get("pwd_passenger_quantity").toString());
+                duration.setText("Duration: " + rideDurationString + " minutes");
+
+                duration.setText("Duration: " + rideDurationString + " minutes");
             } else {
                 rideDurationDouble = Double.parseDouble(rideDuration);
                 if(rideDurationDouble - 60 > 0){
@@ -490,12 +508,20 @@ public class HistoryAdapter extends BaseAdapter {
                     rideDurationString = String.format("%.2f", rideDurationDouble);
                 }
 
+                regularPassengerQuantity.setText("Regular: " + currentRide.get("regular_passenger_quantity").toString());
+                studentPassengerQuantity.setText("Student: " + currentRide.get("student_passenger_quantity").toString());
+                seniorPassengerQuantity.setText("Senior: " + currentRide.get("senior_passenger_quantity").toString());
+                pwdPassengerQuantity.setText("PWD: " + currentRide.get("pwd_passenger_quantity").toString());
                 duration.setText("Duration: " + rideDurationString + " minutes");
+
             }
 
         } else {
-            passengerType.setVisibility(View.GONE);
-            passengerQuantity.setVisibility(View.GONE);
+
+            regularPassengerQuantity.setVisibility(View.GONE);
+            studentPassengerQuantity.setVisibility(View.GONE);
+            seniorPassengerQuantity.setVisibility(View.GONE);
+            pwdPassengerQuantity.setVisibility(View.GONE);
             duration.setVisibility(View.GONE);
 
         }
